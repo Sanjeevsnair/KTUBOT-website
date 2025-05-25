@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Study Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --dark-glass: rgba(17, 24, 39, 0.95);
+            --card-glass: rgba(31, 41, 55, 0.8);
+            --light-glass: rgba(255, 255, 255, 0.05);
+            --warning: #fbbf24;
+            --error: #ef4444;
+            --success: #10b981;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            --transition: all 0.2s ease-out;
+            --gradient-primary: linear-gradient(135deg, #3b82f6, #2563eb);
+            --scrollbar-width: 6px;
+            --card-spacing: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(96, 165, 250, 0.03) 0%, transparent 50%);
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .content-panel {
+            background: var(--dark-glass);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-glass);
+            padding: 35px;
+            box-shadow: var(--box-shadow);
+            max-width: 800px;
+            width: 100%;
+            margin: 50px auto;
+            flex: 1;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--light-glass);
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 3px;
+        }
+
+        .department-list {
+            display: grid;
+            grid-gap: 16px;
+            transition: var(--transition);
+        }
+
+        .department-item {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid var(--light-glass);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .department-item:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-color: var(--accent-primary);
+        }
+
+        .department-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 18px;
+            color: var(--accent-secondary);
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .department-item:hover .department-icon {
+            background: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .department-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .department-arrow {
+            color: var(--text-tertiary);
+            transition: var(--transition);
+            height: 24px;
+            width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--light-glass);
+        }
+
+        .department-item:hover .department-arrow {
+            color: var(--text-primary);
+            background: var(--accent-primary);
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            padding: 18px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            border-left: 4px solid var(--error);
+            display: none;
+            align-items: center;
+        }
+
+        .error-message i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-glass);
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-glass);
+        }
+        
+        .empty-state i {
+            font-size: 2rem;
+            color: var(--text-tertiary);
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Responsive styles */
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px;
+            }
+
+            .content-panel {
+                margin: 20px auto;
+                padding: 25px;
+            }
+
+            header {
+                flex-direction: column;
+                text-align: center;
+                padding-bottom: 20px;
+            }
+
+            .logo {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .department-list {
+                grid-gap: 12px;
+            }
+            
+            .department-item {
+                padding: 16px;
+            }
+            
+            .department-icon {
+                width: 40px;
+                height: 40px;
+                margin-right: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="content-panel">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Engineering Study Assistant</h1>
+                    <p class="subtitle">Select your department to begin</p>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div id="error-message" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-text"></span>
+                </div>
+
+                <h2>Department Selection</h2>
+
+                <div class="department-list" id="department-list">
+                    <!-- Departments will be loaded here -->
+                    <div class="loading-indicator">
+                        <div class="spinner"></div>
+                        <span>Loading departments...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 Engineering Study Assistant | Powered by Gemini AI</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        const departmentList = document.getElementById('department-list');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        // Load departments when the page loads
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+
+        // Function to load departments from the API
+        async function loadDepartments() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/departments`);
+                if (!response.ok) throw new Error('Failed to load departments');
+
+                const departments = await response.json();
+                renderDepartments(departments);
+            } catch (error) {
+                showError('Failed to load departments. Please try again later.');
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        // Function to render departments as a list
+        function renderDepartments(departments) {
+            // Clear loading indicator
+            departmentList.innerHTML = '';
+
+            if (!departments || departments.length === 0) {
+                departmentList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No departments available.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Icons for different departments (you can customize these)
+            const icons = {
+                'Computer Science': 'fa-laptop-code',
+                'Electrical Engineering': 'fa-bolt',
+                'Mechanical Engineering': 'fa-cogs',
+                'Civil Engineering': 'fa-hard-hat',
+                'Chemical Engineering': 'fa-flask',
+                // Add more department-icon mappings as needed
+                'default': 'fa-book' // Default icon for unlisted departments
+            };
+
+            // Create department list items
+            departments.forEach(dept => {
+                const icon = icons[dept] || icons.default;
+
+                const deptElement = document.createElement('div');
+                deptElement.className = 'department-item';
+                deptElement.innerHTML = `
+                    <div class="department-icon">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <span class="department-name">${dept}</span>
+                    <span class="department-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+                `;
+
+                // Add click event to navigate to semester selection
+                deptElement.addEventListener('click', () => {
+                    // Apply a "selected" effect before navigating
+                    deptElement.style.background = 'var(--accent-primary)';
+                    deptElement.style.color = 'white';
+                    deptElement.style.transform = 'translateY(-2px)';
+                    deptElement.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.2)';
+
+                    // Navigate to semester page after a short delay for visual feedback
+                    setTimeout(() => {
+                        window.location.href = `semester.html?department=${encodeURIComponent(dept)}`;
+                    }, 300);
+                });
+
+                departmentList.appendChild(deptElement);
+            });
+        }
+
+        // Show error message
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.style.display = 'flex';
+        }
+
+        // Hide error message
+        function hideError() {
+            errorMessage.style.display = 'none';
+            errorText.textContent = '';
+        }
+    </script>
+</body>
+
+</html>
