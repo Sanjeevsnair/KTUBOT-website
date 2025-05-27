@@ -2386,7 +2386,7 @@
                     <i class="fas fa-user-cog"></i> Profile
                 </button>
                 <button class="user-profile-action" id="sign-out-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                    <i class="fas fa-sign-out-alt"></i> Home
                 </button>
             </div>
         `;
@@ -2407,7 +2407,10 @@
                     });
 
                     // Handle sign out
+                    document.getElementById('sign-out-btn').addEventListener('click', () => {
 
+                        window.location.href = 'index.html';
+                    });
                     // Handle profile settings
                     document.getElementById('profile-settings').addEventListener('click', () => {
                         // You can implement profile settings functionality here
@@ -2442,6 +2445,7 @@
             }
 
             function setupEventListeners() {
+                sign - out - btn.addEventListener('click', signOut);
                 // Sidebar toggle
                 sidebarToggle.addEventListener('click', toggleSidebar);
                 sidebarClose.addEventListener('click', toggleSidebar);
@@ -2469,7 +2473,11 @@
                 chatInput.addEventListener('paste', (e) => {
                     setTimeout(handleInputChange, 0);
                 });
+
+
             }
+
+
 
             function handleResize() {
                 if (window.innerWidth >= 769) {
@@ -2547,14 +2555,34 @@
                 const bubbleDiv = document.createElement('div');
                 bubbleDiv.className = 'message-bubble';
 
+
                 if (role === 'ai') {
                     // Process academic responses differently
                     bubbleDiv.innerHTML = formatAcademicResponse(content);
                     console.log("Formatted HTML:", formatAcademicResponse(content));
+
+                    setTimeout(() => {
+                        bubbleDiv.querySelectorAll('img').forEach(img => {
+                            img.style.maxWidth = '100%';
+                            img.style.borderRadius = 'var(--border-radius-sm)';
+                            img.style.cursor = 'pointer';
+
+                            // Ensure images are clickable
+                            img.onclick = () => openModal(img.src);
+
+                            // Handle broken images
+                            img.onerror = () => {
+                                img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>';
+                                img.style.padding = '2rem';
+                            };
+                        });
+                    }, 0);
                 } else {
                     // User messages don't need special formatting
                     bubbleDiv.textContent = content;
                 }
+
+
 
                 // Try to parse as HTML first, if that fails use plain text
 
@@ -3528,7 +3556,7 @@
                         const avatarDiv = document.createElement('div');
                         avatarDiv.className = 'message-avatar';
                         avatarDiv.innerHTML = msg.role === 'user' ?
-                            (userData?.photoURL ? `<img src="${userData.photoURL}" alt="User">` : '<i class="fas fa-user"></i>') :
+                            (userData?.photoURL ? `<img src="${userData.photoURL}" alt="User avatar" class="user-avatar">` : '<i class="fas fa-user"></i>') :
                             '<i class="fas fa-robot"></i>';
 
                         const contentDiv = document.createElement('div');
@@ -3794,113 +3822,12 @@
             initApp();
         });
 
-        // 1. Enhanced sign-out handler
-        async function handleSignOut() {
-            try {
-                console.log('[Debug] Sign out initiated');
+        document.getElementById('sign-out-btn').addEventListener('click', () => {
 
-                // Visual feedback
-                const btn = document.getElementById('signOutBtn');
-                if (btn) {
-                    const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing Out...';
-                    btn.disabled = true;
-
-                    // Ensure button stays disabled during sign-out
-                    setTimeout(() => {
-                        if (btn.disabled) {
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }
-                    }, 5000); // Timeout after 5 seconds
-                }
-
-                // Firebase sign out
-                if (auth) {
-                    await auth.signOut();
-                    console.log('[Debug] Firebase sign out successful');
-                } else {
-                    console.warn('[Debug] Firebase auth not initialized');
-                }
-
-                // Clear all storage
-                localStorage.clear();
-                sessionStorage.clear();
-                console.log('[Debug] Storage cleared');
-
-                // Redirect with cache busting
-                console.log('[Debug] Redirecting to login');
-                window.location.replace(`index.html?logout=${Date.now()}`);
-
-            } catch (error) {
-                console.error('[Error] Sign out failed:', error);
-                const btn = document.getElementById('signOutBtn');
-                if (btn) {
-                    btn.innerHTML = 'Sign Out';
-                    btn.disabled = false;
-                }
-                alert('Sign out failed. Please try again.');
-            }
-        }
-
-        // 2. Robust event listener setup
-        function setupSignOutButton() {
-            // Remove any existing listeners first
-            const oldBtn = document.getElementById('signOutBtn');
-            if (oldBtn) {
-                oldBtn.replaceWith(oldBtn.cloneNode(true));
-            }
-
-            // Get fresh reference to button
-            const btn = document.getElementById('signOutBtn');
-
-            if (btn) {
-                console.log('[Debug] Setting up sign out button listener');
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    console.log('[Debug] Sign out button clicked');
-                    handleSignOut();
-                });
-            } else {
-                console.warn('[Debug] Sign out button not found in DOM');
-            }
-        }
-
-        // 3. Multiple initialization triggers
-        document.addEventListener('DOMContentLoaded', setupSignOutButton);
-
-        // For dynamic content (if button is added later)
-        const observer = new MutationObserver(() => {
-            if (document.getElementById('signOutBtn')) {
-                setupSignOutButton();
-                observer.disconnect();
-            }
+            window.location.href = 'index.html';
         });
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        // 4. Fallback - works even if button is recreated
-        document.body.addEventListener('click', function (e) {
-            if (e.target.closest('#signOutBtn')) {
-                e.preventDefault();
-                console.log('[Debug] Fallback click handler triggered');
-                handleSignOut();
-            }
-        });
-
-        // 5. Initialize when auth state changes
-        if (auth) {
-            auth.onAuthStateChanged(() => {
-                setTimeout(setupSignOutButton, 100);
-            });
-        }
 
         // Emergency fallback - works even if other code messes with the button
-        document.body.addEventListener('click', function (e) {
-            if (e.target.id === 'signOutBtn' || e.target.closest('#signOutBtn')) {
-                e.preventDefault();
-                handleSignOut();
-            }
-        });
     </script>
 </body>
 
