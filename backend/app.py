@@ -1,7 +1,10 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request , status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
+import firebase_admin
+from firebase_admin import auth, credentials
 from pydantic import BaseModel
 import json
 from pathlib import Path
@@ -36,19 +39,123 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # Load service account credentials
-SERVICE_ACCOUNT_FILE = "ktubot-114e855ff83f.json"
+SERVICE_ACCOUNT_FILE = "ktubot-7a64f8f9fac7.json"
 GOOGLE_DRIVE_FOLDER_ID="15gnvPIxP4oqFghT1f-3lyciYApL7Qget"
-credentials = service_account.Credentials.from_service_account_file(
+credentialss = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE,
     scopes=["https://www.googleapis.com/auth/drive.readonly"]
 )
 
 # Initialize Drive service
-drive_service = build('drive', 'v3', credentials=credentials)
+drive_service = build('drive', 'v3', credentials=credentialss)
 
 import re
 
+# Initialize Firebase Admin
+cred = credentials.Certificate("ktubot-c3495-firebase-adminsdk-fbsvc-5ec25bbfae.json")  # Download from Firebase Console
+firebase_admin.initialize_app(cred)
 
+# Security
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        if not credentials.scheme == "Bearer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid authentication scheme"
+            )
+        
+        # Add debug logging
+        print(f"Verifying token: {credentials.credentials[:50]}...")
+        
+        decoded_token = auth.verify_id_token(credentials.credentials)
+        
+        # Add more debug info
+        print(f"Decoded token: {decoded_token}")
+        
+        return decoded_token
+    except ValueError as e:
+        print(f"ValueError: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid token format"
+        )
+    except auth.ExpiredIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has expired"
+        )
+    except auth.RevokedIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has been revoked"
+        )
+    except auth.InvalidIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid token"
+        )
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials"
+        )
+
+# Add these models
+class FirebaseLoginRequest(BaseModel):
+    id_token: str
+
+class EmailPasswordLoginRequest(BaseModel):
+    email: str
+    password: str
+
+class EmailPasswordRegisterRequest(BaseModel):
+    email: str
+    password: str
+    display_name: Optional[str] = None
+
+# Add these endpoints to your FastAPI app
+@app.post("/api/auth/firebase-login")
+async def firebase_login(request: FirebaseLoginRequest):
+    try:
+        # Verify the Firebase ID token
+        decoded_token = auth.verify_id_token(request.id_token)
+        return {
+            "uid": decoded_token['uid'],
+            "email": decoded_token.get('email'),
+            "name": decoded_token.get('name'),
+            "picture": decoded_token.get('picture')
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/auth/email-register")
+async def email_register(user_data: EmailPasswordRegisterRequest):
+    try:
+        user = auth.create_user(
+            email=user_data.email,
+            password=user_data.password,
+            display_name=user_data.display_name
+        )
+        return {"uid": user.uid, "email": user.email}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/auth/email-login")
+async def email_login(login_data: EmailPasswordLoginRequest):
+    try:
+        # This endpoint is just for your backend to verify, frontend will handle actual sign-in
+        user = auth.get_user_by_email(login_data.email)
+        return {"uid": user.uid, "email": user.email}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Example protected endpoint
+@app.get("/api/protected")
+async def protected_route(user: dict = Depends(get_current_user)):
+    return {"message": f"Hello {user.get('email')}, you're authenticated!"}
 
 # Example: List files in a folder
 def list_files(folder_id):
@@ -76,12 +183,18 @@ class SubjectRequest(BaseModel):
     semester: str
     subject: str
 
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+    isFormatted: Optional[bool] = None
+    containsImages: Optional[bool] = None
+
 class ChatRequest(BaseModel):
     department: str
     semester: str
     subject: str
     question: str
-    chat_history: Optional[List[Dict[str, str]]] = []
+    chat_history: Optional[List[ChatMessage]] = []
 
 # Cache for subject data
 subject_cache: Dict[str, Dict] = {}
@@ -365,11 +478,23 @@ async def get_subjects(request: SemesterRequest):
 async def chat_with_ai(request: ChatRequest):
     """Handle chat interactions with context-aware responses"""
     try:
+        # Clean the chat history (convert HTML to text if needed)
+        cleaned_history = []
+        for msg in request.chat_history:
+            content = msg.content
+            if msg.isFormatted:
+                # Convert HTML to plain text if needed
+                content = re.sub('<[^<]+?>', '', content)  # Simple HTML tag removal
+            cleaned_history.append({
+                "role": msg.role,
+                "content": content
+            })
+        
         # Load subject data
         subject_data = load_subject_data(request.department, request.semester, request.subject)
         
-        # Generate context-aware prompt
-        prompt = generate_prompt(subject_data, request.question, request.chat_history)
+        # Generate context-aware prompt using cleaned history
+        prompt = generate_prompt(subject_data, request.question, cleaned_history)
         
         logger.info(f"Generated prompt: {prompt[:500]}...")  # Log first 500 chars of prompt
         

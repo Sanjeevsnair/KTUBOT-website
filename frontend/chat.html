@@ -144,7 +144,7 @@
         }
 
         .sidebar-close {
-            background: none;
+            background: var(--text-secondary);
             border: none;
             color: var(--text-secondary);
             font-size: 1.2rem;
@@ -305,6 +305,74 @@
             color: var(--accent-primary);
         }
 
+        .conversation-item {
+            padding: 12px 16px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--card-glass);
+            border: 1px solid var(--light-glass);
+        }
+
+        .conversation-item:hover {
+            background: var(--light-glass);
+            transform: translateX(2px);
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .conversation-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .conversation-preview {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-delete {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .conversation-item:hover .conversation-delete {
+            opacity: 1;
+        }
+
+        .conversation-delete:hover {
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -319,7 +387,7 @@
 
         /* Chat Header */
         .chat-header {
-            padding: 16px 24px;
+            padding: 8px 24px;
             background: var(--dark-glass);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -1841,168 +1909,276 @@
         }
 
         /* Add to your existing styles */
-.diagram-container {
-    margin: 2rem 0;
-    position: relative;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--light-glass);
-    box-shadow: var(--box-shadow);
-    display: flex;
-    flex-direction: column;
-}
+        .diagram-container {
+            margin: 2rem 0;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--light-glass);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+        }
 
-.diagram-container:hover {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
+        .diagram-container:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 30px var(--accent-glow);
-    border-color: var(--accent-secondary);
-}
+            border-color: var(--accent-secondary);
+        }
 
 
-.contextual-diagram {
-    display: block;
-    max-width: 100%;
-    max-height: 200px;
-    margin: 0 auto;
-    padding: 20px;
-    cursor: zoom-in;
-    transition: var(--transition);
-    border-radius: var(--border-radius);
-    position: relative;
-    z-index: 1;
-    order: 1; /* Ensure image comes first */
-}
+        .contextual-diagram {
+            display: block;
+            max-width: 100%;
+            max-height: 200px;
+            margin: 0 auto;
+            padding: 20px;
+            cursor: zoom-in;
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+            position: relative;
+            z-index: 1;
+            order: 1;
+            /* Ensure image comes first */
+        }
 
-.contextual-diagram:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1) saturate(1.1);
-}
+        .contextual-diagram:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1) saturate(1.1);
+        }
 
-.contextual-diagram.broken-image {
-    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>');
-    padding: 3rem;
-    opacity: 0.8;
-    background: var(--bg-tertiary);
-    border: 2px dashed var(--accent-primary);
-    border-radius: var(--border-radius);
-}
+        .contextual-diagram.broken-image {
+            content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>');
+            padding: 3rem;
+            opacity: 0.8;
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--accent-primary);
+            border-radius: var(--border-radius);
+        }
 
-.diagram-context {
-    font-size: 0.875rem;
-    padding: 16px 20px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--light-glass);
-    color: var(--text-secondary);
-    position: relative;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    order: 3; /* Move context to the very bottom */
-}
+        .diagram-context {
+            font-size: 0.875rem;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--light-glass);
+            color: var(--text-secondary);
+            position: relative;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            order: 3;
+            /* Move context to the very bottom */
+        }
 
-.diagram-context::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--gradient-glass);
-}
+        .diagram-context::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-glass);
+        }
 
-/* Enhanced loading state */
-.diagram-container.loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+        /* Enhanced loading state */
+        .diagram-container.loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
 
-.diagram-container.loading .contextual-diagram {
-    background: linear-gradient(
-        90deg,
-        var(--bg-tertiary) 25%,
-        var(--bg-secondary) 50%,
-        var(--bg-tertiary) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
-}
+        .diagram-container.loading .contextual-diagram {
+            background: linear-gradient(90deg,
+                    var(--bg-tertiary) 25%,
+                    var(--bg-secondary) 50%,
+                    var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
 
-/* Interactive states */
-.diagram-container:focus-within {
-    outline: 2px solid var(--accent-primary);
-    outline-offset: 4px;
-}
+        /* Interactive states */
+        .diagram-container:focus-within {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 4px;
+        }
 
-.contextual-diagram:active {
-    transform: scale(0.98);
-}
+        .contextual-diagram:active {
+            transform: scale(0.98);
+        }
 
-/* Responsive enhancements */
-@media (max-width: 768px) {
-    .diagram-container {
-        margin: 1.5rem 0;
-        border-radius: var(--border-radius-sm);
-    }
-    
-    .diagram-relevance {
-        padding: 12px 16px;
-        font-size: 0.8rem;
-    }
-    
-    .contextual-diagram {
-        padding: 16px;
-        max-height: 300px;
-    }
-    
-    .diagram-context {
-        padding: 12px 16px;
-        font-size: 0.8rem;
-    }
-}
+        /* Responsive enhancements */
+        @media (max-width: 768px) {
+            .diagram-container {
+                margin: 1.5rem 0;
+                border-radius: var(--border-radius-sm);
+            }
 
-/* Animations */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.8;
-    }
-}
+            .diagram-relevance {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
+            .contextual-diagram {
+                padding: 16px;
+                max-height: 300px;
+            }
 
-/* Glass morphism effect for modern browsers */
-@supports (backdrop-filter: blur(20px)) {
-    .diagram-container {
-        background: rgba(30, 41, 59, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .diagram-context {
-        background: rgba(15, 23, 42, 0.6);
-    }
-}
+            .diagram-context {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+        }
 
-/* Dark mode optimization */
-@media (prefers-color-scheme: dark) {
-    .diagram-container {
-        box-shadow: 
-            0 12px 32px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    
-    .contextual-diagram:hover {
-        filter: brightness(1.2) contrast(1.1);
-    }
-}
+        /* Animations */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Glass morphism effect for modern browsers */
+        @supports (backdrop-filter: blur(20px)) {
+            .diagram-container {
+                background: rgba(30, 41, 59, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .diagram-context {
+                background: rgba(15, 23, 42, 0.6);
+            }
+        }
+
+        /* Dark mode optimization */
+        @media (prefers-color-scheme: dark) {
+            .diagram-container {
+                box-shadow:
+                    0 12px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+
+            .contextual-diagram:hover {
+                filter: brightness(1.2) contrast(1.1);
+            }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 15px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .user-profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--dark-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--light-glass);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            width: 200px;
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+            display: none;
+        }
+
+        .user-profile-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .user-profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .user-profile-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-profile-email {
+            font-size: 0.7rem;
+            word-wrap: break-word;
+            color: var(--text-secondary);
+        }
+
+        .user-profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border-top: 1px solid var(--light-glass);
+            padding-top: 10px;
+        }
+
+        .user-profile-action {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            text-align: left;
+            padding: 8px 10px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-profile-action:hover {
+            background: var(--light-glass);
+        }
+
+        .user-profile-action i {
+            width: 20px;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -2013,15 +2189,11 @@
 
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">
-                    <i class="fas fa-microchip"></i>
-                    <span>KTUBot</span>
-                </div>
-                <button class="sidebar-close" id="sidebar-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+
+
+            <button class="sidebar-close" id="sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
 
             <button class="new-chat-btn" id="new-chat-btn">
                 <i class="fas fa-plus"></i> New Chat
@@ -2068,9 +2240,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="header-btn" id="dark-mode-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
+
+                    <div class="user-profile" id="user-profile">
+                        <img id="user-avatar" class="user-avatar" src="" alt="User">
+                    </div>
                 </div>
             </div>
 
@@ -2129,6 +2302,8 @@
             const modalImage = document.getElementById('modal-image');
             const closeModal = document.querySelector('.close');
             const chatInputBox = document.getElementById('chat-input-box');
+            let currentConversationId = Date.now().toString();
+            const userData = JSON.parse(localStorage.getItem('firebaseUser'));
 
             // API base URL
             const API_BASE_URL = 'http://localhost:8000/api';
@@ -2145,6 +2320,8 @@
                 return;
             }
 
+
+
             // Initialize the app
             function initApp() {
                 // Set up current selection
@@ -2153,8 +2330,12 @@
                 currentSubj.textContent = subject;
                 currentSubjectDisplay.textContent = subject;
 
+                setupUserProfile();
+
                 // Add welcome message
                 addWelcomeMessage();
+
+                renderConversationHistory();
 
                 // Set up event listeners
                 setupEventListeners();
@@ -2169,6 +2350,73 @@
 
                 // Load chat history from localStorage
                 loadChatHistory();
+            }
+
+
+
+            function setupUserProfile() {
+                // Get user data from localStorage (set during authentication)
+
+
+                const userAvatar = document.getElementById('user-avatar');
+                const userProfile = document.getElementById('user-profile');
+
+                if (userData) {
+                    // Set user avatar
+                    if (userData.photoURL) {
+                        userAvatar.src = userData.photoURL;
+                    } else {
+                        // Generate default avatar based on user's initials
+                        const initials = userData.displayName ?
+                            userData.displayName.split(' ').map(n => n[0]).join('') :
+                            userData.email[0].toUpperCase();
+                        userAvatar.src = `https://ui-avatars.com/api/?name=${initials}&background=6366f1&color=fff&rounded=true`;
+                    }
+
+                    // Create dropdown menu
+                    const dropdown = document.createElement('div');
+                    dropdown.className = 'user-profile-dropdown';
+                    dropdown.innerHTML = `
+            <div class="user-profile-info">
+                <div class="user-profile-name">${userData.displayName || 'User'}</div>
+                <div class="user-profile-email">${userData.email}</div>
+            </div>
+            <div class="user-profile-actions">
+                <button class="user-profile-action" id="profile-settings">
+                    <i class="fas fa-user-cog"></i> Profile
+                </button>
+                <button class="user-profile-action" id="sign-out-btn">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </div>
+        `;
+
+                    userProfile.appendChild(dropdown);
+
+                    // Toggle dropdown on avatar click
+                    userAvatar.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        dropdown.classList.toggle('show');
+                    });
+
+                    // Close dropdown when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!userProfile.contains(e.target)) {
+                            dropdown.classList.remove('show');
+                        }
+                    });
+
+                    // Handle sign out
+
+                    // Handle profile settings
+                    document.getElementById('profile-settings').addEventListener('click', () => {
+                        // You can implement profile settings functionality here
+                        alert('Profile settings would open here');
+                    });
+                } else {
+                    // User not authenticated, redirect to login
+                    window.location.href = 'index.html';
+                }
             }
 
             function addWelcomeMessage() {
@@ -2282,6 +2530,17 @@
                 avatarDiv.className = 'message-avatar';
                 avatarDiv.innerHTML = role === 'ai' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
 
+                if (role === 'ai') {
+                    avatarDiv.innerHTML = '<i class="fas fa-robot"></i>';
+                } else {
+                    // Use the user's photo if available, otherwise use initials
+                    if (userData && userData.photoURL) {
+                        avatarDiv.innerHTML = `<img src="${userData.photoURL}" alt="User avatar" class="user-avatar">`;
+                    } else {
+                        avatarDiv.innerHTML = '<i class="fas fa-user"></i>';
+                    }
+                }
+
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
 
@@ -2314,9 +2573,13 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
                 // Add to history if it's a user message
-                if (role === 'user') {
-                    addToHistory(content);
+                if (role === 'user' && document.querySelectorAll('.message').length === 0) {
+                    currentConversationId = Date.now().toString();
                 }
+
+                // Save the updated conversation
+                saveChatHistory();
+
             }
 
             const diagramsBaseUrl = '/diagrams'; // Update this to match your backend diagram route
@@ -2325,54 +2588,54 @@
             // Update the formatAcademicResponse function
             // Update the formatAcademicResponse function
             // Enhanced response processing
-function formatAcademicResponse(response) {
-    // Process diagrams first to maintain their exact positions
-    const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(response);
-    
-    // Convert to HTML
-    let html = convertMarkdown(textWithoutDiagrams);
-    
-    // Apply styling
-    html = applyAcademicStyles(html);
-    
-    // Insert diagrams in their original positions
-    return insertDiagramsWithContext(html, diagrams);
-}
+            function formatAcademicResponse(response) {
+                // Process diagrams first to maintain their exact positions
+                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(response);
 
-// Enhanced diagram extraction with modern features
-// Enhanced diagram extraction with modern features
-function extractDiagramsWithPrecision(text) {
-    const diagramRegex = /\[DIAGRAM:\s*([^\s"]+)\s*"([^"]*)"\]/g;
-    const diagrams = [];
-    let lastIndex = 0;
-    let textWithoutDiagrams = '';
-    
-    let match;
-    while ((match = diagramRegex.exec(text)) !== null) {
-        textWithoutDiagrams += text.slice(lastIndex, match.index);
-        
-        diagrams.push({
-            index: textWithoutDiagrams.length,
-            url: match[1],
-            caption: match[2],
-            id: `diagram_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        });
-        
-        textWithoutDiagrams += `[§DIAGRAM${diagrams.length - 1}§]`;
-        lastIndex = diagramRegex.lastIndex;
-    }
-    
-    textWithoutDiagrams += text.slice(lastIndex);
-    
-    return { textWithoutDiagrams, diagrams };
-}
+                // Convert to HTML
+                let html = convertMarkdown(textWithoutDiagrams);
 
-// Enhanced diagram insertion with modern features
-function insertDiagramsWithContext(html, diagrams) {
-    for (let i = diagrams.length - 1; i >= 0; i--) {
-        const diagram = diagrams[i];
-        const placeholder = `[§DIAGRAM${i}§]`;
-        const diagramHtml = `
+                // Apply styling
+                html = applyAcademicStyles(html);
+
+                // Insert diagrams in their original positions
+                return insertDiagramsWithContext(html, diagrams);
+            }
+
+            // Enhanced diagram extraction with modern features
+            // Enhanced diagram extraction with modern features
+            function extractDiagramsWithPrecision(text) {
+                const diagramRegex = /\[DIAGRAM:\s*([^\s"]+)\s*"([^"]*)"\]/g;
+                const diagrams = [];
+                let lastIndex = 0;
+                let textWithoutDiagrams = '';
+
+                let match;
+                while ((match = diagramRegex.exec(text)) !== null) {
+                    textWithoutDiagrams += text.slice(lastIndex, match.index);
+
+                    diagrams.push({
+                        index: textWithoutDiagrams.length,
+                        url: match[1],
+                        caption: match[2],
+                        id: `diagram_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                    });
+
+                    textWithoutDiagrams += `[§DIAGRAM${diagrams.length - 1}§]`;
+                    lastIndex = diagramRegex.lastIndex;
+                }
+
+                textWithoutDiagrams += text.slice(lastIndex);
+
+                return { textWithoutDiagrams, diagrams };
+            }
+
+            // Enhanced diagram insertion with modern features
+            function insertDiagramsWithContext(html, diagrams) {
+                for (let i = diagrams.length - 1; i >= 0; i--) {
+                    const diagram = diagrams[i];
+                    const placeholder = `[§DIAGRAM${i}§]`;
+                    const diagramHtml = `
             <div class="diagram-container" 
                  data-context="${escapeHtml(diagram.caption)}"
                  data-diagram-id="${diagram.id}"
@@ -2393,50 +2656,50 @@ function insertDiagramsWithContext(html, diagrams) {
                 </div>
             </div>
         `;
-        html = html.replace(placeholder, diagramHtml);
-    }
-    return html;
-}
+                    html = html.replace(placeholder, diagramHtml);
+                }
+                return html;
+            }
 
-// Enhanced utility functions
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+            // Enhanced utility functions
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
 
-// Image loading handler with modern animations
-function handleImageLoad(img) {
-    const container = img.closest('.diagram-container');
-    if (container) {
-        container.classList.remove('loading');
-        
-        // Add entrance animation
-        img.style.opacity = '0';
-        img.style.transform = 'translateY(20px)';
-        
-        requestAnimationFrame(() => {
-            img.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            img.style.opacity = '1';
-            img.style.transform = 'translateY(0)';
-        });
-    }
-}
+            // Image loading handler with modern animations
+            function handleImageLoad(img) {
+                const container = img.closest('.diagram-container');
+                if (container) {
+                    container.classList.remove('loading');
 
-// Enhanced error handling
-function handleImageError(img) {
-    const container = img.closest('.diagram-container');
-    if (container) {
-        container.classList.remove('loading');
-        img.classList.add('broken-image');
-        
-        // Add error state styling
-        container.style.border = '2px dashed var(--warning)';
-        
-        // Create error message
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'diagram-error';
-        errorMsg.innerHTML = `
+                    // Add entrance animation
+                    img.style.opacity = '0';
+                    img.style.transform = 'translateY(20px)';
+
+                    requestAnimationFrame(() => {
+                        img.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        img.style.opacity = '1';
+                        img.style.transform = 'translateY(0)';
+                    });
+                }
+            }
+
+            // Enhanced error handling
+            function handleImageError(img) {
+                const container = img.closest('.diagram-container');
+                if (container) {
+                    container.classList.remove('loading');
+                    img.classList.add('broken-image');
+
+                    // Add error state styling
+                    container.style.border = '2px dashed var(--warning)';
+
+                    // Create error message
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'diagram-error';
+                    errorMsg.innerHTML = `
             <div style="padding: 1rem; text-align: center; color: var(--warning);">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
                 <div style="font-weight: 500;">Failed to load diagram</div>
@@ -2445,76 +2708,76 @@ function handleImageError(img) {
                 </div>
             </div>
         `;
-        
-        img.parentNode.insertBefore(errorMsg, img);
-        img.style.display = 'none';
-    }
-}
 
-// Keyboard accessibility
-function handleImageKeydown(event, url, caption) {
-    if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        openEnhancedModal(url, caption);
-    }
-}
+                    img.parentNode.insertBefore(errorMsg, img);
+                    img.style.display = 'none';
+                }
+            }
 
-// Enhanced modal functionality
-function openEnhancedModal(imageSrc, caption) {
-    // Create modal if it doesn't exist
-    let modal = document.getElementById('diagram-modal');
-    if (!modal) {
-        modal = createEnhancedModal();
-    }
-    
-    const modalImage = modal.querySelector('.modal-image');
-    const modalCaption = modal.querySelector('.modal-caption');
-    const modalLoader = modal.querySelector('.modal-loader');
-    
-    // Show loading state
-    modalLoader.style.display = 'flex';
-    modalImage.style.display = 'none';
-    modalCaption.textContent = caption;
-    
-    // Load image
-    const img = new Image();
-    img.onload = () => {
-        modalImage.src = imageSrc;
-        modalImage.style.display = 'block';
-        modalLoader.style.display = 'none';
-        
-        // Add entrance animation
-        modalImage.style.opacity = '0';
-        modalImage.style.transform = 'scale(0.9)';
-        requestAnimationFrame(() => {
-            modalImage.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            modalImage.style.opacity = '1';
-            modalImage.style.transform = 'scale(1)';
-        });
-    };
-    img.onerror = () => {
-        modalLoader.innerHTML = `
+            // Keyboard accessibility
+            function handleImageKeydown(event, url, caption) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openEnhancedModal(url, caption);
+                }
+            }
+
+            // Enhanced modal functionality
+            function openEnhancedModal(imageSrc, caption) {
+                // Create modal if it doesn't exist
+                let modal = document.getElementById('diagram-modal');
+                if (!modal) {
+                    modal = createEnhancedModal();
+                }
+
+                const modalImage = modal.querySelector('.modal-image');
+                const modalCaption = modal.querySelector('.modal-caption');
+                const modalLoader = modal.querySelector('.modal-loader');
+
+                // Show loading state
+                modalLoader.style.display = 'flex';
+                modalImage.style.display = 'none';
+                modalCaption.textContent = caption;
+
+                // Load image
+                const img = new Image();
+                img.onload = () => {
+                    modalImage.src = imageSrc;
+                    modalImage.style.display = 'block';
+                    modalLoader.style.display = 'none';
+
+                    // Add entrance animation
+                    modalImage.style.opacity = '0';
+                    modalImage.style.transform = 'scale(0.9)';
+                    requestAnimationFrame(() => {
+                        modalImage.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        modalImage.style.opacity = '1';
+                        modalImage.style.transform = 'scale(1)';
+                    });
+                };
+                img.onerror = () => {
+                    modalLoader.innerHTML = `
             <div style="text-align: center; color: var(--error);">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
                 <div>Failed to load full-size image</div>
             </div>
         `;
-    };
-    img.src = imageSrc;
-    
-    // Show modal
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    
-    // Focus management
-    modal.focus();
-}
+                };
+                img.src = imageSrc;
 
-// Create enhanced modal
-function createEnhancedModal() {
-    const modal = document.createElement('div');
-    modal.id = 'diagram-modal';
-    modal.innerHTML = `
+                // Show modal
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // Focus management
+                modal.focus();
+            }
+
+            // Create enhanced modal
+            function createEnhancedModal() {
+                const modal = document.createElement('div');
+                modal.id = 'diagram-modal';
+                modal.innerHTML = `
         <div class="modal-overlay" onclick="closeEnhancedModal()"></div>
         <div class="modal-content">
             <div class="modal-header">
@@ -2537,10 +2800,10 @@ function createEnhancedModal() {
             </div>
         </div>
     `;
-    
-    // Add modal styles
-    const modalStyles = document.createElement('style');
-    modalStyles.textContent = `
+
+                // Add modal styles
+                const modalStyles = document.createElement('style');
+                modalStyles.textContent = `
         #diagram-modal {
             position: fixed;
             top: 0;
@@ -2670,61 +2933,61 @@ function createEnhancedModal() {
             to { transform: rotate(360deg); }
         }
     `;
-    
-    document.head.appendChild(modalStyles);
-    document.body.appendChild(modal);
-    
-    // ESC key handler
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
-            closeEnhancedModal();
-        }
-    });
-    
-    return modal;
-}
 
-// Close modal function
-function closeEnhancedModal() {
-    const modal = document.getElementById('diagram-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-}
+                document.head.appendChild(modalStyles);
+                document.body.appendChild(modal);
 
-// Initialize diagrams with loading states
-function initializeDiagrams() {
-    const containers = document.querySelectorAll('.diagram-container');
-    containers.forEach(container => {
-        container.classList.add('loading');
-        
-        // Add intersection observer for lazy loading
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target.querySelector('.contextual-diagram');
-                        if (img && !img.complete) {
-                            // Trigger loading animation
-                            container.classList.add('loading');
-                        }
-                        observer.unobserve(entry.target);
+                // ESC key handler
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && modal.style.display === 'flex') {
+                        closeEnhancedModal();
                     }
                 });
-            });
-            
-            observer.observe(container);
-        }
-    });
-}
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeDiagrams);
-} else {
-    initializeDiagrams();
-}
+                return modal;
+            }
+
+            // Close modal function
+            function closeEnhancedModal() {
+                const modal = document.getElementById('diagram-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+
+            // Initialize diagrams with loading states
+            function initializeDiagrams() {
+                const containers = document.querySelectorAll('.diagram-container');
+                containers.forEach(container => {
+                    container.classList.add('loading');
+
+                    // Add intersection observer for lazy loading
+                    if ('IntersectionObserver' in window) {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    const img = entry.target.querySelector('.contextual-diagram');
+                                    if (img && !img.complete) {
+                                        // Trigger loading animation
+                                        container.classList.add('loading');
+                                    }
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        });
+
+                        observer.observe(container);
+                    }
+                });
+            }
+
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeDiagrams);
+            } else {
+                initializeDiagrams();
+            }
 
 
             function cleanRawText(text) {
@@ -2739,9 +3002,9 @@ if (document.readyState === 'loading') {
             }
 
             /**
- * Clean & Aesthetic Academic Markdown Converter
- * A minimal, elegant approach to styling academic content
- */
+    * Clean & Aesthetic Academic Markdown Converter
+    * A minimal, elegant approach to styling academic content
+    */
 
             /**
              * Convert markdown text to clean HTML
@@ -3078,11 +3341,17 @@ if (document.readyState === 'loading') {
             }
 
             function startNewChat() {
-                if (confirm('Start a new chat? Your current conversation will be cleared.')) {
-                    chatMessages.innerHTML = '';
-                    addWelcomeMessage();
-                    saveChatHistory();
-                }
+                // Clear current chat
+                chatMessages.innerHTML = '';
+
+                // Generate new conversation ID
+                currentConversationId = Date.now().toString();
+
+                // Add welcome message
+                addWelcomeMessage();
+
+                // Save empty state
+                saveChatHistory();
             }
 
             async function sendMessage() {
@@ -3151,6 +3420,23 @@ if (document.readyState === 'loading') {
                 }
             }
 
+            function getMessagesForConversation(conversationId) {
+                const messages = [];
+                const messageElements = document.querySelectorAll('.message');
+
+                messageElements.forEach(el => {
+                    if (el.classList.contains('message-user')) {
+                        const content = el.querySelector('.message-bubble').textContent;
+                        messages.push({ role: 'user', content: content });
+                    } else if (el.classList.contains('message-ai') && el.id !== 'typing-indicator') {
+                        const content = el.querySelector('.message-bubble').textContent;
+                        messages.push({ role: 'assistant', content: content });
+                    }
+                });
+
+                return messages;
+            }
+
             function showTypingIndicator() {
                 const typingIndicator = document.createElement('div');
                 typingIndicator.className = 'message message-ai';
@@ -3200,53 +3486,295 @@ if (document.readyState === 'loading') {
                 darkModeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
             }
 
+            // In your saveChatHistory function, modify how messages are stored:
             function saveChatHistory() {
-                const historyItems = Array.from(document.querySelectorAll('.history-item')).map(item =>
-                    item.textContent.trim().replace(/^[^\w]*/, '')
-                );
-                localStorage.setItem('chatHistory', JSON.stringify(historyItems));
+                const messages = getCurrentConversationMessages();
+                if (messages.length === 0) return;
+
+                const savedConversations = localStorage.getItem('chatConversations');
+                const conversations = savedConversations ? JSON.parse(savedConversations) : [];
+
+                const existingIndex = conversations.findIndex(c => c.id === currentConversationId);
+
+                const conversation = {
+                    id: currentConversationId,
+                    title: messages[0].content.substring(0, 30),
+                    timestamp: new Date().toISOString(),
+                    messages: messages,
+                    hasImages: messages.some(m => m.containsImages)
+                };
+
+                if (existingIndex >= 0) {
+                    conversations[existingIndex] = conversation;
+                } else {
+                    conversations.unshift(conversation);
+                }
+
+                localStorage.setItem('chatConversations', JSON.stringify(conversations.slice(0, 20)));
+                renderConversationHistory();
             }
 
-            function loadChatHistory() {
-                const savedHistory = localStorage.getItem('chatHistory');
-                if (savedHistory) {
-                    try {
-                        const historyItems = JSON.parse(savedHistory);
-                        historyItems.forEach(item => {
-                            const historyItem = document.createElement('button');
-                            historyItem.className = 'history-item';
-                            historyItem.innerHTML = `<i class="fas fa-comment"></i> ${truncateText(item, 30)}`;
-                            historyItem.addEventListener('click', () => {
-                                chatInput.value = item;
-                                handleInputChange();
-                                chatInput.focus();
-                            });
-                            historyList.appendChild(historyItem);
+            // Update the loadConversation function to handle images:
+            function loadConversation(conversation) {
+                chatMessages.innerHTML = '';
+                currentConversationId = conversation.id;
+
+                if (conversation.messages && conversation.messages.length > 0) {
+                    conversation.messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message message-${msg.role === 'user' ? 'user' : 'ai'}`;
+
+                        // Avatar creation
+                        const avatarDiv = document.createElement('div');
+                        avatarDiv.className = 'message-avatar';
+                        avatarDiv.innerHTML = msg.role === 'user' ?
+                            (userData?.photoURL ? `<img src="${userData.photoURL}" alt="User">` : '<i class="fas fa-user"></i>') :
+                            '<i class="fas fa-robot"></i>';
+
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'message-content';
+
+                        const bubbleDiv = document.createElement('div');
+                        bubbleDiv.className = 'message-bubble';
+
+                        if (msg.isFormatted) {
+                            // Use DOMParser for safer HTML parsing
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(msg.content, 'text/html');
+                            bubbleDiv.innerHTML = doc.body.innerHTML;
+
+                            // Process images after they're added to DOM
+                            setTimeout(() => {
+                                bubbleDiv.querySelectorAll('img').forEach(img => {
+                                    img.style.maxWidth = '100%';
+                                    img.style.borderRadius = 'var(--border-radius-sm)';
+                                    img.style.cursor = 'pointer';
+
+                                    // Ensure images are clickable
+                                    img.onclick = () => openModal(img.src);
+
+                                    // Handle broken images
+                                    img.onerror = () => {
+                                        img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>';
+                                        img.style.padding = '2rem';
+                                    };
+                                });
+                            }, 0);
+                        } else {
+                            bubbleDiv.textContent = msg.content;
+                        }
+
+                        // Add timestamp
+                        const timeDiv = document.createElement('div');
+                        timeDiv.className = 'message-time';
+                        timeDiv.textContent = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
                         });
-                    } catch (e) {
-                        console.error('Failed to load chat history:', e);
+
+                        contentDiv.appendChild(bubbleDiv);
+                        contentDiv.appendChild(timeDiv);
+                        messageDiv.appendChild(avatarDiv);
+                        messageDiv.appendChild(contentDiv);
+
+                        chatMessages.appendChild(messageDiv);
+                    });
+                } else {
+                    addWelcomeMessage();
+                }
+
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Update the renderConversationHistory function to indicate conversations with images:
+            function renderConversationHistory() {
+                historyList.innerHTML = '';
+
+                const savedConversations = localStorage.getItem('chatConversations');
+                if (!savedConversations) return;
+
+                try {
+                    const conversations = JSON.parse(savedConversations);
+                    conversations.forEach(conversation => {
+                        const conversationItem = document.createElement('div');
+                        conversationItem.className = 'conversation-item';
+                        conversationItem.dataset.conversationId = conversation.id;
+
+                        // Add image indicator if conversation contains images
+                        const imageIndicator = conversation.hasImages ?
+                            '<i class="fas fa-image" style="margin-left: 5px; color: var(--accent-primary);"></i>' : '';
+
+                        conversationItem.innerHTML = `
+                <div class="conversation-header">
+                    <div class="conversation-title">${conversation.title}${imageIndicator}</div>
+                    <div class="conversation-time">${formatConversationTime(conversation.timestamp)}</div>
+                    <button class="conversation-delete" title="Delete conversation">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <div class="conversation-preview">${getConversationPreview(conversation.messages)}</div>
+            `;
+
+                        conversationItem.addEventListener('click', (e) => {
+                            if (!e.target.closest('.conversation-delete')) {
+                                loadConversation(conversation);
+                            }
+                        });
+
+                        conversationItem.querySelector('.conversation-delete').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteConversation(conversation.id);
+                        });
+
+                        historyList.appendChild(conversationItem);
+                    });
+                } catch (e) {
+                    console.error('Error loading conversation history:', e);
+                }
+            }
+
+            // Ensure your modal system works with loaded conversations:
+            // Global modal functions
+            window.openModal = function (imageSrc) {
+                const modal = document.getElementById('image-modal');
+                const modalImage = document.getElementById('modal-image');
+
+                // Show loading state
+                modalImage.style.display = 'none';
+                modal.style.display = 'flex';
+
+                // Load image in background
+                const img = new Image();
+                img.onload = function () {
+                    modalImage.src = imageSrc;
+                    modalImage.style.display = 'block';
+                };
+                img.onerror = function () {
+                    modalImage.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>';
+                    modalImage.style.display = 'block';
+                    modalImage.style.padding = '2rem';
+                };
+                img.src = imageSrc;
+
+                // Close modal when clicking outside
+                modal.onclick = function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                };
+
+                // Close with ESC key
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && modal.style.display === 'flex') {
+                        modal.style.display = 'none';
+                    }
+                });
+            };
+
+
+
+
+
+            function formatConversationTime(timestamp) {
+                const now = new Date();
+                const convDate = new Date(timestamp);
+                const timeDiff = now - convDate;
+                const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+                if (daysDiff === 0) return 'Today';
+                if (daysDiff === 1) return 'Yesterday';
+                if (daysDiff < 7) return `${daysDiff} days ago`;
+                return convDate.toLocaleDateString();
+            }
+
+            function getConversationPreview(messages) {
+                if (!messages || messages.length === 0) return 'Empty conversation';
+
+                const firstUserMsg = messages.find(msg => msg.role === 'user');
+                const lastAiMsg = [...messages].reverse().find(msg => msg.role === 'assistant');
+
+                let preview = '';
+                if (firstUserMsg) preview += truncateText(firstUserMsg.content, 30);
+                if (lastAiMsg) preview += ` → ${truncateText(lastAiMsg.content, 30)}`;
+
+                return preview || 'New conversation';
+            }
+
+
+            function deleteConversation(id) {
+                if (confirm('Are you sure you want to delete this conversation?')) {
+                    // Remove from localStorage
+                    const savedConversations = localStorage.getItem('chatConversations');
+                    if (savedConversations) {
+                        try {
+                            const conversations = JSON.parse(savedConversations);
+                            const updatedConversations = conversations.filter(conv => conv.id !== id);
+                            localStorage.setItem('chatConversations', JSON.stringify(updatedConversations));
+                            renderConversationHistory();
+
+                            // If deleted conversation was currently loaded, start new one
+                            if (id === currentConversationId) {
+                                startNewChat();
+                            }
+                        } catch (e) {
+                            console.error('Error deleting conversation:', e);
+                        }
                     }
                 }
             }
 
             function getChatHistoryForAPI() {
                 const messages = [];
-
-                // Get all message elements in the chat
-                const messageElements = document.querySelectorAll('.message');
+                const messageElements = document.querySelectorAll('.message:not(#typing-indicator)');
 
                 messageElements.forEach(el => {
                     if (el.classList.contains('message-user')) {
-                        const content = el.querySelector('.message-bubble').textContent;
+                        const content = el.querySelector('.message-bubble').textContent.trim();
                         messages.push({ role: 'user', content: content });
-                    } else if (el.classList.contains('message-ai') && el.id !== 'typing-indicator') {
-                        const content = el.querySelector('.message-bubble').textContent;
-                        messages.push({ role: 'assistant', content: content });
+                    } else if (el.classList.contains('message-ai')) {
+                        const bubble = el.querySelector('.message-bubble');
+                        // Convert HTML to plain text for the API
+                        const content = bubble.textContent.trim();
+                        messages.push({
+                            role: 'assistant',
+                            content: content,
+                            // Only include if your backend now expects these
+                            isFormatted: true,
+                            containsImages: bubble.innerHTML.includes('<img')
+                        });
                     }
                 });
 
                 return messages;
             }
+
+            function getCurrentConversationMessages() {
+                const messages = [];
+                const messageElements = document.querySelectorAll('.message');
+
+                messageElements.forEach(el => {
+                    if (el.classList.contains('message-user')) {
+                        const content = el.querySelector('.message-bubble').textContent;
+                        messages.push({
+                            role: 'user',
+                            content: content,
+                            isFormatted: false
+                        });
+                    } else if (el.classList.contains('message-ai') && el.id !== 'typing-indicator') {
+                        const bubble = el.querySelector('.message-bubble');
+                        messages.push({
+                            role: 'assistant',
+                            content: bubble.innerHTML, // Store HTML content
+                            isFormatted: true,
+                            containsImages: bubble.innerHTML.includes('<img') // Flag for images
+                        });
+                    }
+                });
+
+                return messages;
+            }
+
 
             // Global functions for dynamic content
             window.toggleDiffView = function (button, id, type) {
@@ -3260,13 +3788,118 @@ if (document.readyState === 'loading') {
                     '<i class="fas fa-code-compare"></i> View AI Enhancements';
             };
 
-            window.openModal = function (imageSrc) {
-                modalImage.src = imageSrc;
-                modal.style.display = 'block';
-            };
+
 
             // Initialize the app
             initApp();
+        });
+
+        // 1. Enhanced sign-out handler
+        async function handleSignOut() {
+            try {
+                console.log('[Debug] Sign out initiated');
+
+                // Visual feedback
+                const btn = document.getElementById('signOutBtn');
+                if (btn) {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing Out...';
+                    btn.disabled = true;
+
+                    // Ensure button stays disabled during sign-out
+                    setTimeout(() => {
+                        if (btn.disabled) {
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                        }
+                    }, 5000); // Timeout after 5 seconds
+                }
+
+                // Firebase sign out
+                if (auth) {
+                    await auth.signOut();
+                    console.log('[Debug] Firebase sign out successful');
+                } else {
+                    console.warn('[Debug] Firebase auth not initialized');
+                }
+
+                // Clear all storage
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('[Debug] Storage cleared');
+
+                // Redirect with cache busting
+                console.log('[Debug] Redirecting to login');
+                window.location.replace(`index.html?logout=${Date.now()}`);
+
+            } catch (error) {
+                console.error('[Error] Sign out failed:', error);
+                const btn = document.getElementById('signOutBtn');
+                if (btn) {
+                    btn.innerHTML = 'Sign Out';
+                    btn.disabled = false;
+                }
+                alert('Sign out failed. Please try again.');
+            }
+        }
+
+        // 2. Robust event listener setup
+        function setupSignOutButton() {
+            // Remove any existing listeners first
+            const oldBtn = document.getElementById('signOutBtn');
+            if (oldBtn) {
+                oldBtn.replaceWith(oldBtn.cloneNode(true));
+            }
+
+            // Get fresh reference to button
+            const btn = document.getElementById('signOutBtn');
+
+            if (btn) {
+                console.log('[Debug] Setting up sign out button listener');
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log('[Debug] Sign out button clicked');
+                    handleSignOut();
+                });
+            } else {
+                console.warn('[Debug] Sign out button not found in DOM');
+            }
+        }
+
+        // 3. Multiple initialization triggers
+        document.addEventListener('DOMContentLoaded', setupSignOutButton);
+
+        // For dynamic content (if button is added later)
+        const observer = new MutationObserver(() => {
+            if (document.getElementById('signOutBtn')) {
+                setupSignOutButton();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // 4. Fallback - works even if button is recreated
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('#signOutBtn')) {
+                e.preventDefault();
+                console.log('[Debug] Fallback click handler triggered');
+                handleSignOut();
+            }
+        });
+
+        // 5. Initialize when auth state changes
+        if (auth) {
+            auth.onAuthStateChanged(() => {
+                setTimeout(setupSignOutButton, 100);
+            });
+        }
+
+        // Emergency fallback - works even if other code messes with the button
+        document.body.addEventListener('click', function (e) {
+            if (e.target.id === 'signOutBtn' || e.target.closest('#signOutBtn')) {
+                e.preventDefault();
+                handleSignOut();
+            }
         });
     </script>
 </body>
