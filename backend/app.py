@@ -51,9 +51,9 @@ drive_service = build(
     "drive",
     "v3",
     credentials=credentialss,
-    retry=Retry(deadline=30),
     static_discovery=False,
 )
+
 
 import re
 

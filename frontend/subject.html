@@ -384,157 +384,161 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const API_BASE_URL = 'http://localhost:8000/api';
-        const subjectList = document.getElementById('subject-list');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
-        const currentSemester = document.getElementById('current-semester');
-        const deptLink = document.getElementById('dept-link');
+        document.addEventListener('DOMContentLoaded', function () {
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const subjectList = document.getElementById('subject-list');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const currentSemester = document.getElementById('current-semester');
+            const deptLink = document.getElementById('dept-link');
 
-        // Get department and semester from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const department = urlParams.get('department');
-        const semester = urlParams.get('semester');
+            // Get department and semester from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const department = urlParams.get('department');
+            const semester = urlParams.get('semester');
 
-        if (!department || !semester) {
-            window.location.href = 'index.html';
-            return;
-        }
-
-        // Set current semester in breadcrumb and department link
-        currentSemester.textContent = semester;
-        deptLink.textContent = department;
-        deptLink.href = `semester.html?department=${encodeURIComponent(department)}`;
-
-        // Load subjects for the department and semester
-        loadSubjects(department, semester);
-
-        // Function to load subjects from the API
-        async function loadSubjects(department, semester) {
-            try {
-                showLoading();
-                
-                const response = await fetch(`${API_BASE_URL}/subjects`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        department: department,
-                        semester: semester
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => null);
-                    throw new Error(errorData?.detail || 'Failed to load subjects');
-                }
-
-                const data = await response.json();
-                
-                if (!data || data.length === 0) {
-                    showEmptyState('No subjects available for this semester.');
-                    return;
-                }
-                
-                renderSubjects(data);
-            } catch (error) {
-                showError(error.message || 'Failed to load subjects. Please try again later.');
-                console.error('Error loading subjects:', error);
+            if (!department || !semester) {
+                window.location.href = 'index.html';
+                return;
             }
-        }
 
-        // Function to render subjects as a list
-        function renderSubjects(subjects) {
-            // Clear loading indicator
-            subjectList.innerHTML = '';
+            // Set current semester in breadcrumb and department link
+            currentSemester.textContent = semester;
+            deptLink.textContent = department;
+            deptLink.href = `semester.html?department=${encodeURIComponent(department)}`;
 
-            // Icons for different subjects (customize as needed)
-            const icons = {
-                'Computer Architecture': 'fa-microchip',
-                'Data Structures': 'fa-diagram-project',
-                'Algorithms': 'fa-code',
-                'Database Systems': 'fa-database',
-                'Operating Systems': 'fa-desktop',
-                'default': 'fa-book'
-            };
+            // Load subjects for the department and semester
+            loadSubjects(department, semester);
 
-            // Create subject list items
-            subjects.forEach(subject => {
-                const icon = icons[subject] || icons.default;
+            // Function to load subjects from the API
+            async function loadSubjects(department, semester) {
+                try {
+                    showLoading();
 
-                const subjectElement = document.createElement('div');
-                subjectElement.className = 'subject-item';
-                subjectElement.innerHTML = `
+                    const response = await fetch(`${API_BASE_URL}/subjects`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            department: department,
+                            semester: semester
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => null);
+                        throw new Error(errorData?.detail || 'Failed to load subjects');
+                    }
+
+                    const data = await response.json();
+
+                    if (!data || data.length === 0) {
+                        showEmptyState('No subjects available for this semester.');
+                        return;
+                    }
+
+                    renderSubjects(data);
+                } catch (error) {
+                    showError(error.message || 'Failed to load subjects. Please try again later.');
+                    console.error('Error loading subjects:', error);
+                }
+            }
+
+            function removeUnderscores(text) {
+                return text.replace(/_/g, ' ');
+            }
+
+            // Function to render subjects as a list
+            function renderSubjects(subjects) {
+                // Clear loading indicator
+                subjectList.innerHTML = '';
+
+                // Icons for different subjects (customize as needed)
+                const icons = {
+                    'Computer Architecture': 'fa-microchip',
+                    'Data Structures': 'fa-diagram-project',
+                    'Algorithms': 'fa-code',
+                    'Database Systems': 'fa-database',
+                    'Operating Systems': 'fa-desktop',
+                    'default': 'fa-book'
+                };
+
+                // Create subject list items
+                subjects.forEach(subject => {
+                    const icon = icons[subject] || icons.default;
+
+                    const subjectElement = document.createElement('div');
+                    subjectElement.className = 'subject-item';
+                    subjectElement.innerHTML = `
                     <div class="subject-icon">
                         <i class="fas ${icon}"></i>
                     </div>
-                    <span class="subject-name">${subject}</span>
+                    <span class="subject-name">${removeUnderscores(subject)}</span>
                     <span class="subject-arrow">
                         <i class="fas fa-chevron-right"></i>
                     </span>
                 `;
 
-                // Add click event with ripple effect
-                subjectElement.addEventListener('click', function(e) {
-                    // Create ripple effect
-                    const ripple = document.createElement('span');
-                    ripple.className = 'ripple';
-                    this.appendChild(ripple);
-                    
-                    // Get click position
-                    const rect = this.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    // Position the ripple
-                    ripple.style.left = `${x}px`;
-                    ripple.style.top = `${y}px`;
-                    
-                    // Remove ripple after animation
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                    
-                    // Navigate to chat page
-                    setTimeout(() => {
-                        window.location.href = `chat.html?department=${encodeURIComponent(department)}&semester=${encodeURIComponent(semester)}&subject=${encodeURIComponent(subject)}`;
-                    }, 300);
+                    // Add click event with ripple effect
+                    subjectElement.addEventListener('click', function (e) {
+                        // Create ripple effect
+                        const ripple = document.createElement('span');
+                        ripple.className = 'ripple';
+                        this.appendChild(ripple);
+
+                        // Get click position
+                        const rect = this.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+
+                        // Position the ripple
+                        ripple.style.left = `${x}px`;
+                        ripple.style.top = `${y}px`;
+
+                        // Remove ripple after animation
+                        setTimeout(() => {
+                            ripple.remove();
+                        }, 600);
+
+                        // Navigate to chat page
+                        setTimeout(() => {
+                            window.location.href = `chat.html?department=${encodeURIComponent(department)}&semester=${encodeURIComponent(semester)}&subject=${encodeURIComponent(subject)}`;
+                        }, 300);
+                    });
+
+                    subjectList.appendChild(subjectElement);
                 });
+            }
 
-                subjectList.appendChild(subjectElement);
-            });
-        }
-
-        // Show loading state
-        function showLoading() {
-            subjectList.innerHTML = `
+            // Show loading state
+            function showLoading() {
+                subjectList.innerHTML = `
                 <div class="loading-indicator">
                     <div class="spinner"></div>
                     <span>Loading subjects...</span>
                 </div>
             `;
-            hideError();
-        }
+                hideError();
+            }
 
-        // Show empty state
-        function showEmptyState(message) {
-            subjectList.innerHTML = `
+            // Show empty state
+            function showEmptyState(message) {
+                subjectList.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-info-circle"></i>
                     <p>${message}</p>
                 </div>
             `;
-        }
+            }
 
-        // Show error message
-        function showError(message) {
-            errorText.textContent = message;
-            errorMessage.style.display = 'flex';
-            
-            // Show retry button
-            subjectList.innerHTML = `
+            // Show error message
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'flex';
+
+                // Show retry button
+                subjectList.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>${message}</p>
@@ -552,20 +556,20 @@
                     </button>
                 </div>
             `;
-            
-            // Add retry event
-            document.getElementById('retry-button')?.addEventListener('click', () => loadSubjects(department, semester));
-        }
 
-        // Hide error message
-        function hideError() {
-            errorMessage.style.display = 'none';
-            errorText.textContent = '';
-        }
+                // Add retry event
+                document.getElementById('retry-button')?.addEventListener('click', () => loadSubjects(department, semester));
+            }
 
-        // Add ripple effect styles dynamically
-        const style = document.createElement('style');
-        style.textContent = `
+            // Hide error message
+            function hideError() {
+                errorMessage.style.display = 'none';
+                errorText.textContent = '';
+            }
+
+            // Add ripple effect styles dynamically
+            const style = document.createElement('style');
+            style.textContent = `
             .ripple {
                 position: absolute;
                 border-radius: 50%;
@@ -582,9 +586,9 @@
                 }
             }
         `;
-        document.head.appendChild(style);
-    });
-</script>
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 
 </html>

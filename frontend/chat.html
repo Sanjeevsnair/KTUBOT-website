@@ -1084,7 +1084,7 @@
 
         /* Chat Input */
         .chat-input-container {
-            padding: 5px 24px 16px 24px;
+            padding: 5px 24px 3px 24px;
             position: sticky;
             bottom: 0;
             z-index: 20;
@@ -2314,6 +2314,8 @@
             const semester = urlParams.get('semester');
             const subject = urlParams.get('subject');
 
+            
+
             // Validate parameters
             if (!department || !semester || !subject) {
                 window.location.href = 'index.html';
@@ -2327,8 +2329,8 @@
                 // Set up current selection
                 currentDept.textContent = department;
                 currentSem.textContent = semester;
-                currentSubj.textContent = subject;
-                currentSubjectDisplay.textContent = subject;
+                currentSubj.textContent = removeUnderscores(subject);
+                currentSubjectDisplay.textContent = removeUnderscores(subject);
 
                 setupUserProfile();
 
@@ -2432,7 +2434,7 @@
                     <i class="fas fa-robot"></i>
                 </div>
                 <h1 class="welcome-title">What can I help with?</h1>
-                <p class="welcome-subtitle">Ask me anything about ${subject} in ${department} (${semester})</p>
+                <p class="welcome-subtitle">Ask me anything about ${removeUnderscores(subject)} in ${department} (${semester})</p>
                 
             `;
                 chatMessages.appendChild(welcomeContainer);
@@ -2545,7 +2547,11 @@
                     if (userData && userData.photoURL) {
                         avatarDiv.innerHTML = `<img src="${userData.photoURL}" alt="User avatar" class="user-avatar">`;
                     } else {
-                        avatarDiv.innerHTML = '<i class="fas fa-user"></i>';
+                        const initials = userData.displayName ?
+                            userData.displayName.split(' ').map(n => n[0]).join('') :
+                            userData.email[0].toUpperCase();
+                        avatar = `https://ui-avatars.com/api/?name=${initials}&background=6366f1&color=fff&rounded=true`;
+                        avatarDiv.innerHTML = `<img src="${avatar}" alt="User avatar" class="user-avatar">`;
                     }
                 }
 
@@ -2694,6 +2700,10 @@
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
+            }
+
+            function removeUnderscores(text) {
+                return text.replace(/_/g, ' ');
             }
 
             // Image loading handler with modern animations
@@ -3284,7 +3294,7 @@
 
                 // Display subject info
                 html += `<div class="result-card">`;
-                html += `<h3>${data.metadata.subject}</h3>`;
+                html += `<h3>${removeUnderscores(data.metadata.subject)}</h3>`;
                 html += `<p class="subtitle">${data.metadata.department} - Semester ${data.metadata.semester}</p>`;
 
                 // Process modules
@@ -3555,8 +3565,12 @@
                         // Avatar creation
                         const avatarDiv = document.createElement('div');
                         avatarDiv.className = 'message-avatar';
+                        const initials = userData.displayName ?
+                            userData.displayName.split(' ').map(n => n[0]).join('') :
+                            userData.email[0].toUpperCase();
+                        avatar = `https://ui-avatars.com/api/?name=${initials}&background=6366f1&color=fff&rounded=true`;
                         avatarDiv.innerHTML = msg.role === 'user' ?
-                            (userData?.photoURL ? `<img src="${userData.photoURL}" alt="User avatar" class="user-avatar">` : '<i class="fas fa-user"></i>') :
+                            (userData?.photoURL ? `<img src="${userData.photoURL}" alt="User avatar" class="user-avatar">` : `<img src="${avatar}" alt="User avatar" class="user-avatar">`) :
                             '<i class="fas fa-robot"></i>';
 
                         const contentDiv = document.createElement('div');
