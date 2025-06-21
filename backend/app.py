@@ -226,13 +226,408 @@ def get_context_key(department: str, semester: str, subject: str) -> str:
     return f"{department}_{semester}_{subject}"
 
 
+def extract_and_convert_latex_tables(text: str) -> tuple[str, Dict[str, str]]:
+    """Extract LaTeX tables and convert them to HTML tables with placeholders"""
+    table_pattern = re.compile(
+        r'\\begin\{table\}.*?\\end\{table\}',
+        re.DOTALL | re.IGNORECASE
+    )
+    
+    tables = {}
+    table_counter = 0
+    
+    def replace_table(match):
+        nonlocal table_counter
+        table_latex = match.group(0)
+        table_id = f"TABLE_PLACEHOLDER_{table_counter}"
+        table_counter += 1
+        
+        # Convert LaTeX table to HTML
+        html_table = latex_table_to_html(table_latex)
+        tables[table_id] = html_table
+        
+        return f"[{table_id}]"
+    
+    # Replace tables with placeholders
+    text_with_placeholders = table_pattern.sub(replace_table, text)
+    
+    return text_with_placeholders, tables
+
+
+def latex_table_to_html(latex_table: str) -> str:
+    """Convert LaTeX table to styled HTML table - preserves all data, removes only formatting"""
+    try:
+        # Extract table content between \begin{tabular} and \end{tabular}
+        tabular_pattern = re.compile(
+            r'\\begin\{tabular\}\{([^}]*)\}(.*?)\\end\{tabular\}',
+            re.DOTALL
+        )
+        
+        tabular_match = tabular_pattern.search(latex_table)
+        if not tabular_match:
+            return "<p>Table formatting error</p>"
+        
+        column_spec = tabular_match.group(1).strip()  # Extract column specification
+        table_content = tabular_match.group(2).strip()
+        
+        # Extract caption if present
+        caption_pattern = re.compile(r'\\caption\{([^}]*)\}')
+        caption_match = caption_pattern.search(latex_table)
+        caption = caption_match.group(1) if caption_match else ""
+        
+        # STEP 1: Remove LaTeX formatting commands (but preserve content)
+        table_content = re.sub(r'\\rowcolor\{[^}]*\}', '', table_content)
+        table_content = re.sub(r'\\midrule', '', table_content)
+        table_content = re.sub(r'\\bottomrule', '', table_content)
+        table_content = re.sub(r'\\toprule', '', table_content)
+        table_content = re.sub(r'\\arrayrulecolor\{[^}]*\}', '', table_content)
+        table_content = re.sub(r'\\columncolor\{[^}]*\}', '', table_content)
+        table_content = re.sub(r'\\cellcolor\{[^}]*\}', '', table_content)
+        
+        # STEP 2: Split into rows first, then clean each row
+        # Split by \\ (end of row marker)
+        raw_rows = re.split(r'\\\\', table_content)
+        
+        # Process each row
+        rows = []
+        for i, raw_row in enumerate(raw_rows):
+            raw_row = raw_row.strip()
+            
+            # Skip completely empty rows
+            if not raw_row:
+                continue
+            
+            # CRITICAL: Only remove if the row contains ONLY column specification
+            # Check if this row is purely a column specification that leaked in
+            # This is more precise - only remove if it matches exactly the column spec pattern
+            if re.match(r'^[lcr\s>{}|]*$', raw_row) and len(raw_row) < 50:
+                # Additional check: see if it matches the actual column specification
+                clean_row = re.sub(r'[^lcr>{}]', '', raw_row)
+                clean_spec = re.sub(r'[^lcr>{}]', '', column_spec)
+                if clean_row == clean_spec or not any(c.isalnum() for c in raw_row):
+                    continue
+            
+            # Split by & (column separator)
+            cells = re.split(r'(?<!\\)&', raw_row)
+            cleaned_cells = []
+            
+            for j, cell in enumerate(cells):
+                cell = cell.strip()
+                
+                # PRESERVE CONTENT: Only clean formatting, don't remove content
+                # Check if this cell is ONLY a column specification fragment
+                if j == 0 and i == 0 and re.match(r'^[lcr\s>{}]*$', cell) and len(cell) < 20:
+                    # This might be a leaked column spec in first cell of first row
+                    # But only remove if it exactly matches part of the column specification
+                    clean_cell = re.sub(r'[^lcr>{}]', '', cell)
+                    clean_spec = re.sub(r'[^lcr>{}]', '', column_spec)
+                    if clean_cell in clean_spec and not any(c.isalnum() for c in cell):
+                        cell = ''  # Remove only if it's clearly a column spec leak
+                
+                # Clean LaTeX commands but preserve all actual content
+                cell = re.sub(r'\\textsubscript\{([^}]*)\}', r'<sub>\1</sub>', cell)
+                cell = re.sub(r'\\textsuperscript\{([^}]*)\}', r'<sup>\1</sup>', cell)
+                cell = re.sub(r'\\textsuper\{([^}]*)\}', r'<sup>\1</sup>', cell)
+                cell = re.sub(r'\\rightarrow', '→', cell)
+                cell = re.sub(r'\\leftarrow', '←', cell)
+                cell = re.sub(r'\\newline', '<br>', cell)
+                cell = re.sub(r'\$([^$]*)\$', r'\1', cell)  # Remove math mode delimiters
+                cell = re.sub(r'\\textbf\{([^}]*)\}', r'<strong>\1</strong>', cell)
+                cell = re.sub(r'\\textit\{([^}]*)\}', r'<em>\1</em>', cell)
+                
+                # Remove LaTeX commands but preserve their content
+                cell = re.sub(r'\\([a-zA-Z]+)\{([^}]*)\}', r'\2', cell)  # Extract content from commands
+                cell = re.sub(r'\\[a-zA-Z]+(?:\[[^\]]*\])?', '', cell)  # Remove standalone commands
+                
+                # Clean up remaining LaTeX syntax
+                cell = re.sub(r'[{}]', '', cell)
+                cell = cell.strip()
+                
+                cleaned_cells.append(cell)
+            
+            # Add all rows that have any content (even if some cells are empty)
+            if cleaned_cells:
+                # Ensure we don't lose rows just because they have empty cells
+                rows.append(cleaned_cells)
+        
+        if not rows:
+            return "<p>No table data found</p>"
+        
+        # STEP 3: Normalize column count - ensure all rows have same number of columns
+        max_cols = max(len(row) for row in rows)
+        for row in rows:
+            while len(row) < max_cols:
+                row.append('')  # Pad with empty cells
+        
+        # Generate HTML table
+        html_parts = []
+        html_parts.append('<div class="table-container">')
+        html_parts.append('<table class="latex-table">')
+        
+        # Determine if first row should be header
+        # Simple heuristic: if first row has different formatting or all non-empty cells
+        has_header = True
+        if len(rows) > 1:
+            first_row_content = sum(1 for cell in rows[0] if cell.strip())
+            if first_row_content == 0:
+                has_header = False
+        
+        if has_header and rows:
+            # Add header row
+            html_parts.append('<thead>')
+            html_parts.append('<tr class="header-row">')
+            for cell in rows[0]:
+                html_parts.append(f'<th>{cell if cell else "&nbsp;"}</th>')
+            html_parts.append('</tr>')
+            html_parts.append('</thead>')
+            
+            # Add body rows (skip first row since it's the header)
+            html_parts.append('<tbody>')
+            for row in rows[1:]:
+                html_parts.append('<tr>')
+                for cell in row:
+                    html_parts.append(f'<td>{cell if cell else "&nbsp;"}</td>')
+                html_parts.append('</tr>')
+            html_parts.append('</tbody>')
+        else:
+            # No header, all rows are data
+            html_parts.append('<tbody>')
+            for row in rows:
+                html_parts.append('<tr>')
+                for cell in row:
+                    html_parts.append(f'<td>{cell if cell else "&nbsp;"}</td>')
+                html_parts.append('</tr>')
+            html_parts.append('</tbody>')
+        
+        html_parts.append('</table>')
+       
+        html_parts.append('</div>')
+        
+        # Add CSS styling
+        css_style = """
+        <style>
+        .table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .latex-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: rgba(30, 41, 59, 0.7);
+            margin: 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .latex-table thead th {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 16px 20px;
+            text-align: left;
+            border: none;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        
+        .latex-table thead th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .latex-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            transition: background-color 0.2s ease;
+        }
+        
+        .latex-table tbody tr:nth-child(even) {
+            background: rgba(51, 65, 85, 0.3);
+        }
+        
+        .latex-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+        
+        .latex-table td {
+            padding: 14px 20px;
+            border: none;
+            font-size: 14px;
+            color: #94a3b8;
+            vertical-align: top;
+            line-height: 1.5;
+        }
+        
+        .latex-table td:first-child {
+            font-weight: 500;
+            color: #f8fafc;
+            position: relative;
+        }
+        
+        .latex-table tbody tr:hover td:first-child::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #6366f1;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .table-caption {
+            text-align: center;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-top: 12px;
+            font-size: 13px;
+            font-style: italic;
+        }
+        
+        .latex-table sub {
+            font-size: 75%;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+            bottom: -0.25em;
+        }
+        
+        .latex-table sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+            top: -0.5em;
+        }
+        
+        .latex-table th, .latex-table td {
+            min-width: 80px;
+        }
+        
+        /* Subtle row highlighting */
+        .latex-table tbody tr:hover td {
+            color: #cbd5e1;
+        }
+        
+        /* Light theme support */
+        [data-theme="light"] .table-container {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="light"] .latex-table {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        [data-theme="light"] .latex-table thead th {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+        
+        [data-theme="light"] .latex-table tbody tr {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="light"] .latex-table tbody tr:nth-child(even) {
+            background: rgba(241, 245, 249, 0.7);
+        }
+        
+        [data-theme="light"] .latex-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+        
+        [data-theme="light"] .latex-table td {
+            color: #64748b;
+        }
+        
+        [data-theme="light"] .latex-table td:first-child {
+            color: #1e293b;
+        }
+        
+        [data-theme="light"] .latex-table tbody tr:hover td {
+            color: #374151;
+        }
+        
+        [data-theme="light"] .table-caption {
+            color: #374151;
+        }
+        
+        /* Focus states for accessibility */
+        .latex-table:focus-within {
+            outline: 2px solid #6366f1;
+            outline-offset: 2px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .table-container {
+                margin: 16px 0;
+                border-radius: 8px;
+            }
+            
+            .latex-table {
+                font-size: 13px;
+            }
+            
+            .latex-table th, .latex-table td {
+                padding: 12px 16px;
+                min-width: 60px;
+            }
+            
+            .latex-table thead th {
+                font-size: 12px;
+                padding: 14px 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .latex-table th, .latex-table td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .table-caption {
+                font-size: 12px;
+                margin-top: 10px;
+            }
+        }
+</style>
+        """
+        
+        return css_style + ''.join(html_parts)
+        
+    except Exception as e:
+        logger.error(f"Error converting LaTeX table: {str(e)}")
+        return f"<p>Error processing table: {str(e)}</p>"
+
+
+def restore_tables_in_response(text: str, tables: Dict[str, str]) -> str:
+    """Restore HTML tables in the response text"""
+    for table_id, html_table in tables.items():
+        text = text.replace(f"[{table_id}]", html_table)
+    return text
+
+
 # Update the generate_prompt function in your FastAPI backend
 def generate_prompt(
     subject_data: Dict, question: str, chat_history: List[Dict[str, str]]
-) -> str:
+) -> tuple[str, Dict[str, str]]:
     """Generate prompt with context-aware diagram instructions and LaTeX to plain text conversion"""
     syllabus_content = []
     diagram_map = {}  # Track diagrams with their context
+    all_tables = {}  # Store all extracted tables
 
     for module in subject_data["content"]["modules"]:
         for topic in module["topics"]:
@@ -246,8 +641,13 @@ def generate_prompt(
                     }
 
             syllabus_content.append(f"## {topic_context}")
+            
+            # Extract tables and convert to placeholders
+            text_with_placeholders, tables = extract_and_convert_latex_tables(topic["content"]["text"])
+            all_tables.update(tables)
+            
             syllabus_content.append(
-                latex_to_plaintext(topic["content"]["text"].strip())
+                latex_to_plaintext(text_with_placeholders.strip())
             )
 
             for subtopic in topic.get("subtopics", []):
@@ -261,8 +661,13 @@ def generate_prompt(
                         }
 
                 syllabus_content.append(f"### {subtopic['subtopic_title']}")
+                
+                # Extract tables and convert to placeholders
+                subtext_with_placeholders, subtables = extract_and_convert_latex_tables(subtopic["content"]["text"])
+                all_tables.update(subtables)
+                
                 syllabus_content.append(
-                    latex_to_plaintext(subtopic["content"]["text"].strip())
+                    latex_to_plaintext(subtext_with_placeholders.strip())
                 )
 
     syllabus_text = "\n".join(syllabus_content)
@@ -290,8 +695,19 @@ def generate_prompt(
     # Convert LaTeX in the question
     processed_question = latex_to_plaintext(question)
 
+    # Table placeholders for the prompt
+    table_placeholders = list(all_tables.keys())
+    table_instructions = ""
+    if table_placeholders:
+        table_instructions = f"""
+**Available Table Placeholders**: {', '.join(table_placeholders)}
+- These placeholders represent formatted tables from the syllabus
+- Include relevant table placeholders in your response exactly as they appear
+- DO NOT modify or recreate table content - use the placeholders as-is
+- Tables will be automatically formatted in the final response
+        """
+
     # Construct the strict prompt
-    # Construct the strict prompt (continued)
     prompt = f"""
 **Syllabus Content**:
 {syllabus_text}
@@ -302,6 +718,8 @@ def generate_prompt(
 
 **Available Diagrams with Context**:
 {"\n".join(diagram_instructions) if diagram_instructions else "No diagrams available"}
+
+{table_instructions}
 
 Your response MUST use this exact format:
 
@@ -320,6 +738,12 @@ Your response MUST use this exact format:
    [DIAGRAM: full_url "Accurate caption explaining relevance to question"]
 4. Place each diagram IMMEDIATELY after the text it illustrates
 5. Never include diagrams that aren't directly relevant
+
+**Table Inclusion Rules**:
+1. If your response needs to reference tabular data from the syllabus, use the exact table placeholder
+2. Place table placeholders where they are most relevant to your explanation
+3. DO NOT create new tables or modify existing table content
+4. Use placeholders exactly as provided: [TABLE_PLACEHOLDER_X]
 
 **Response Requirements**:
 1. Answer must directly address the question using ONLY the syllabus content above
@@ -344,21 +768,50 @@ Your response MUST use this exact format:
 
 **Response**:
 """
-    return prompt
+    return prompt, all_tables
 
 
 def latex_to_plaintext(text: str) -> str:
-    """Convert LaTeX math blocks to plain text"""
-    # Handle inline math $...$
-    text = re.sub(r"\$(.*?)\$", r"\1", text)
-    # Handle display math \[...\]
-    text = re.sub(r"\\\[(.*?)\\\]", r"\1", text)
-    # Handle other common LaTeX math environments
+    """Convert LaTeX to plain text with special handling for lstlisting and math, but preserve table placeholders"""
+    if not text:
+        return text
+
+    # Preserve table placeholders
+    table_placeholders = re.findall(r'\[TABLE_PLACEHOLDER_\d+\]', text)
+    
+    # First process lstlisting blocks
+    text = process_lstlisting_blocks(text)
+    
+    # Then handle math expressions (existing code)
+    text = re.sub(r"\$(.*?)\$", r"\1", text)  # Inline math
+    text = re.sub(r"\\\[(.*?)\\\]", r"\1", text)  # Display math
     text = re.sub(r"\\begin\{equation\*\}(.*?)\\end\{equation\*\}", r"\1", text)
     text = re.sub(r"\\begin\{align\*\}(.*?)\\end\{align\*\}", r"\1", text)
-    # Remove other LaTeX commands
-    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)
+    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)  # Remove other LaTeX commands
+    
     return text
+
+def process_lstlisting_blocks(text: str) -> str:
+    """Extract and format lstlisting blocks as markdown code blocks"""
+    lstlisting_pattern = re.compile(
+        r'\\begin\{lstlisting\}(\[.*?\])?(.*?)\\end\{lstlisting\}',
+        re.DOTALL
+    )
+    
+    def replace_lstlisting(match):
+        options = match.group(1) or ''
+        code_content = match.group(2).strip()
+        
+        # Extract language if specified
+        language = 'text'
+        lang_match = re.search(r'language=([a-zA-Z]+)', options)
+        if lang_match:
+            language = lang_match.group(1).lower()
+        
+        # Convert to markdown code block
+        return f"```{language}\n{code_content}\n```"
+    
+    return lstlisting_pattern.sub(replace_lstlisting, text)
 
 
 def list_drive_folder(folder_id):
@@ -588,12 +1041,13 @@ async def chat_with_ai(request: ChatRequest):
             request.department, request.semester, request.subject
         )
 
-        # Generate context-aware prompt using cleaned history
-        prompt = generate_prompt(subject_data, request.question, cleaned_history)
+        # Generate context-aware prompt using cleaned history and get tables
+        prompt, extracted_tables = generate_prompt(subject_data, request.question, cleaned_history)
 
         logger.info(
             f"Generated prompt: {prompt[:500]}..."
         )  # Log first 500 chars of prompt
+        logger.info(f"Extracted {len(extracted_tables)} tables")
 
         # Get response from Gemini
         response = gemini_model.generate_content(prompt)
@@ -601,6 +1055,9 @@ async def chat_with_ai(request: ChatRequest):
         # Get the text response
         if not response.text:
             raise HTTPException(status_code=500, detail="Empty response from AI")
+
+        # Restore tables in the response
+        final_response = restore_tables_in_response(response.text, extracted_tables)
 
         # Update chat context
         context_key = get_context_key(
@@ -613,7 +1070,7 @@ async def chat_with_ai(request: ChatRequest):
         chat_contexts[context_key].extend(
             [
                 {"role": "user", "content": request.question},
-                {"role": "assistant", "content": response.text},
+                {"role": "assistant", "content": final_response},
             ]
         )
 
@@ -621,12 +1078,14 @@ async def chat_with_ai(request: ChatRequest):
         chat_contexts[context_key] = chat_contexts[context_key][-10:]
 
         return {
-            "answer": response.text,
+            "answer": final_response,
             "sources": {
                 "subject": request.subject,
                 "department": request.department,
                 "semester": request.semester,
             },
+            "containsTable": len(extracted_tables) > 0,
+            "tableCount": len(extracted_tables)
         }
     except Exception as e:
         logger.error(f"Error in chat: {str(e)}")

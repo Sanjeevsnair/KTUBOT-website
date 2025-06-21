@@ -2179,6 +2179,99 @@
                 transform: translateY(0);
             }
         }
+
+        /* Enhanced Code Block Styling */
+        .academic-code-block {
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius-sm);
+            margin: 1.5rem 0;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--bg-tertiary);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--light-glass);
+        }
+
+        .language-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            background: var(--light-glass);
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .academic-code-block pre {
+            margin: 0;
+            padding: 0;
+            background: transparent !important;
+        }
+
+        .academic-code-block code {
+            display: block;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.679);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(19, 26, 37, 0.7) !important;
+            border: none !important;
+        }
+
+        /* Syntax highlighting colors */
+        .academic-code-block code .keyword {
+            color: #c792ea;
+        }
+
+        .academic-code-block code .type {
+            color: #82aaff;
+        }
+
+        .academic-code-block code .comment {
+            color: #546e7a;
+            font-style: italic;
+        }
+
+        .academic-code-block code .string {
+            color: #c3e88d;
+        }
+
+        .academic-code-block code .number {
+            color: #f78c6c;
+        }
+
+        .academic-code-block code .function {
+            color: #82aaff;
+        }
     </style>
 </head>
 
@@ -2314,7 +2407,7 @@
             const semester = urlParams.get('semester');
             const subject = urlParams.get('subject');
 
-            
+
 
             // Validate parameters
             if (!department || !semester || !subject) {
@@ -2423,7 +2516,7 @@
                     window.location.href = 'index.html';
                 }
             }
-            
+
 
             function addWelcomeMessage() {
                 const welcomeContainer = document.createElement('div');
@@ -2618,23 +2711,225 @@
 
             const diagramsBaseUrl = '/diagrams'; // Update this to match your backend diagram route
 
-            // Update the formatAcademicResponse function to handle diagrams
-            // Update the formatAcademicResponse function
-            // Update the formatAcademicResponse function
-            // Enhanced response processing
             function formatAcademicResponse(response) {
-                // Process diagrams first to maintain their exact positions
-                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(response);
+                // Process code blocks first
+                const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
+
+                // Then process diagrams
+                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+
+                // Process tables - extract table placeholders and HTML tables
+                const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
 
                 // Convert to HTML
-                let html = convertMarkdown(textWithoutDiagrams);
+                let html = convertMarkdown(textWithoutTables);
 
-                // Apply styling
+                // Apply academic styling
                 html = applyAcademicStyles(html);
+
+                // Insert formatted code blocks
+                html = insertFormattedCodeBlocks(html, codeBlocks);
+
+                // Insert tables in their original positions
+                html = insertTables(html, tables);
 
                 // Insert diagrams in their original positions
                 return insertDiagramsWithContext(html, diagrams);
             }
+
+            function extractTables(text) {
+                const tables = [];
+                let tableCounter = 0;
+
+                // Pattern to match HTML tables with their CSS styles
+                const tablePattern = /<style>[\s\S]*?<\/style>\s*<div class="table-container">[\s\S]*?<\/div>/g;
+
+                const textWithoutTables = text.replace(tablePattern, (match) => {
+                    const placeholder = `TABLE_PLACEHOLDER_${tableCounter}`;
+                    tables.push({
+                        placeholder: placeholder,
+                        html: match
+                    });
+                    tableCounter++;
+                    return `[${placeholder}]`;
+                });
+
+                return { textWithoutTables, tables };
+            }
+
+            function insertTables(html, tables) {
+                let result = html;
+
+                tables.forEach(table => {
+                    const placeholderPattern = new RegExp(`\\[${table.placeholder}\\]`, 'g');
+                    result = result.replace(placeholderPattern, table.html);
+                });
+
+                return result;
+            }
+
+            // Alternative function if tables are coming as placeholders from backend
+            function extractTablePlaceholders(text) {
+                const tables = [];
+                let tableCounter = 0;
+
+                // Pattern to match table placeholders like [TABLE_PLACEHOLDER_0]
+                const placeholderPattern = /\[TABLE_PLACEHOLDER_(\d+)\]/g;
+
+                let match;
+                while ((match = placeholderPattern.exec(text)) !== null) {
+                    tables.push({
+                        placeholder: match[0],
+                        index: match[1]
+                    });
+                }
+
+                return { tables, textWithoutTables: text };
+            }
+
+            // Updated function to handle backend table placeholders
+            function formatAcademicResponseWithBackendTables(response) {
+                // The response from backend already contains HTML tables mixed with markdown
+                // We need to extract and preserve the HTML tables while processing the markdown
+
+                // Step 1: Extract HTML tables (with their CSS styles)
+                const { textWithoutTables, tables } = extractTablesFromResponse(response);
+
+                // Step 2: Process code blocks
+                const { textWithoutCode, codeBlocks } = extractCodeBlocks(textWithoutTables);
+
+                // Step 3: Process diagrams
+                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+
+                // Step 4: Convert markdown to HTML
+                let html = convertMarkdown(textWithoutDiagrams);
+
+                // Step 5: Apply academic styling
+                html = applyAcademicStyles(html);
+
+                // Step 6: Insert back the extracted content
+                html = insertFormattedCodeBlocks(html, codeBlocks);
+                html = insertTablesFromResponse(html, tables);
+                html = insertDiagramsWithContext(html, diagrams);
+
+                return html;
+            }
+
+            function extractTablesFromResponse(text) {
+                const tables = [];
+                let tableCounter = 0;
+
+                // Pattern to match complete table structures from backend
+                const tablePattern = /<style>[\s\S]*?<\/style>\s*<div class="table-container">[\s\S]*?<\/div>/g;
+
+                const textWithoutTables = text.replace(tablePattern, (match) => {
+                    const placeholder = `__TABLE_${tableCounter}__`;
+                    tables.push({
+                        placeholder: placeholder,
+                        html: match
+                    });
+                    tableCounter++;
+                    return placeholder;
+                });
+
+                return { textWithoutTables, tables };
+            }
+
+            function insertTablesFromResponse(html, tables) {
+                let result = html;
+
+                tables.forEach(table => {
+                    const placeholderPattern = new RegExp(table.placeholder, 'g');
+                    result = result.replace(placeholderPattern, table.html);
+                });
+
+                return result;
+            }
+
+            // Helper function to clean up malformed table content
+            function cleanTableContent(text) {
+                // Remove LaTeX table syntax that might leak through
+                text = text.replace(/\\begin\{tabular\}.*?\\end\{tabular\}/gs, '');
+                text = text.replace(/\\toprule|\\midrule|\\bottomrule/g, '');
+                text = text.replace(/\\rowcolor\{[^}]*\}/g, '');
+                text = text.replace(/\{[^}]*\}/g, ''); // Remove remaining LaTeX braces
+
+                return text;
+            }
+
+            // Main function to use
+            function formatAcademicResponse(response) {
+                // Check if response contains HTML tables (from backend)
+                if (response.includes('<div class="table-container">')) {
+                    return formatAcademicResponseWithBackendTables(response);
+                } else {
+                    // Original function for responses without tables
+                    const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
+                    const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+
+                    let html = convertMarkdown(textWithoutDiagrams);
+                    html = applyAcademicStyles(html);
+                    html = insertFormattedCodeBlocks(html, codeBlocks);
+
+                    return insertDiagramsWithContext(html, diagrams);
+                }
+            }
+
+            function extractCodeBlocks(text) {
+                const codeRegex = /```(\w*)\n([^`]+)```/g;
+                const codeBlocks = [];
+                let lastIndex = 0;
+                let textWithoutCode = '';
+
+                let match;
+                while ((match = codeRegex.exec(text)) !== null) {
+                    textWithoutCode += text.slice(lastIndex, match.index);
+                    codeBlocks.push({
+                        index: textWithoutCode.length,
+                        language: match[1] || 'text',
+                        content: match[2].trim()
+                    });
+                    textWithoutCode += `[CODE${codeBlocks.length - 1}]`;
+                    lastIndex = codeRegex.lastIndex;
+                }
+
+                textWithoutCode += text.slice(lastIndex);
+                return { textWithoutCode, codeBlocks };
+            }
+
+            function insertFormattedCodeBlocks(html, codeBlocks) {
+                for (let i = codeBlocks.length - 1; i >= 0; i--) {
+                    const block = codeBlocks[i];
+                    const placeholder = `[CODE${i}]`;
+                    const codeHtml = `
+            <div class="academic-code-block" data-language="${escapeHtml(block.language)}">
+                <div class="code-header">
+                    <span class="language-label">${block.language.toUpperCase()}</span>
+                    <button class="copy-btn" onclick="copyCode(this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <pre><code>${escapeHtml(block.content)}</code></pre>
+            </div>
+        `;
+                    html = html.replace(placeholder, codeHtml);
+                }
+                return html;
+            }
+
+            // Add to your existing utility functions
+            window.copyCode = function (button) {
+                const codeBlock = button.closest('.academic-code-block');
+                const codeContent = codeBlock.querySelector('code').textContent;
+                navigator.clipboard.writeText(codeContent).then(() => {
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                    }, 2000);
+                });
+            };
+
 
             // Enhanced diagram extraction with modern features
             // Enhanced diagram extraction with modern features
