@@ -40,10 +40,21 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # Load service account credentials
-SERVICE_ACCOUNT_FILE = "ktubot-7a64f8f9fac7.json"
 GOOGLE_DRIVE_FOLDER_ID = "15gnvPIxP4oqFghT1f-3lyciYApL7Qget"
-credentialss = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/drive.readonly"]
+from dotenv import load_dotenv
+
+# Load .env if running locally
+load_dotenv()
+
+# Parse credentials from environment variable
+creds_json = os.environ.get("GOOGLE_CREDS")
+if not creds_json:
+    raise ValueError("GOOGLE_CREDS environment variable not set")
+
+creds_dict = json.loads(creds_json)
+credentialss = service_account.Credentials.from_service_account_info(
+    creds_dict,
+    scopes=["https://www.googleapis.com/auth/drive.readonly"]
 )
 
 # Initialize Drive service
