@@ -614,10 +614,7 @@
 
         /* User Bubble - Modern 3D Glass Effect */
         .message-user .message-bubble {
-            background: linear-gradient(135deg,
-                    rgba(99, 102, 241, 0.95) 0%,
-                    rgba(79, 70, 229, 0.9) 50%,
-                    rgba(67, 56, 202, 0.95) 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
             color: white;
             border-radius: 20px 20px 4px 20px;
             margin-left: auto;
@@ -627,6 +624,8 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+            margin-bottom: 25px;
+
         }
 
         .message-user .message-bubble::before {
@@ -663,9 +662,9 @@
         /* AI Bubble - Sophisticated Glass Morphism */
         .message-ai .message-bubble {
             background: linear-gradient(135deg,
-                    rgba(30, 41, 59, 0.8) 0%,
-                    rgba(51, 65, 85, 0.6) 50%,
-                    rgba(30, 41, 59, 0.9) 100%);
+                    rgba(30, 45, 66, 0.9) 100%,
+                    rgba(34, 56, 87, 0.6) 50%,
+                    rgba(30, 45, 66, 0.9) 100%);
             color: var(--text-primary);
             border-radius: 20px 20px 20px 4px;
             margin-right: auto;
@@ -676,6 +675,7 @@
                 inset 0 -1px 0 rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+            margin-bottom: 25px;
         }
 
         .message-ai .message-bubble::before {
@@ -1088,6 +1088,7 @@
             position: sticky;
             bottom: 0;
             z-index: 20;
+            
         }
 
         .chat-input-box {
@@ -1116,7 +1117,7 @@
             border: none;
             font-size: 0.95rem;
             resize: none;
-            min-height: 60px;
+            min-height: 40px;
             max-height: 200px;
             transition: var(--transition);
             outline: none;
@@ -1233,7 +1234,7 @@
 
 
         .result-card h3 {
-            margin-bottom: 16px;
+            margin-bottom: 25px;
             color: var(--text-primary);
             font-size: 1.3rem;
             font-weight: 700;
@@ -1242,6 +1243,7 @@
 
         /* Enhanced Time Display */
         .message-ai .message-time {
+            display: none;
             font-size: 0.7rem;
             color: var(--text-tertiary);
             margin-top: 6px;
@@ -1249,6 +1251,7 @@
         }
 
         .message-user .message-time {
+            display: none;
             text-align: right;
             font-size: 0.7rem;
             color: var(--text-tertiary);
@@ -2182,7 +2185,6 @@
 
         /* Enhanced Code Block Styling */
         .academic-code-block {
-    background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-secondary));
     border-radius: var(--border-radius);
     margin: 2rem 0;
     overflow: hidden;
@@ -2327,7 +2329,7 @@
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.85);
     background: 
-        linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)) !important;
+        rgb(26, 35, 51) !important;
     border: none !important;
     position: relative;
     font-weight: 400;
