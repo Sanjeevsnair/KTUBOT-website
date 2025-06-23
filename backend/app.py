@@ -68,9 +68,15 @@ drive_service = build(
 
 import re
 
+firebase_json = os.environ.get("FIREBASE_CREDS")
+if not firebase_json:
+    raise ValueError("GOOGLE_CREDS environment variable not set")
+
+firebase_dict = json.loads(firebase_json)
+
 # Initialize Firebase Admin
 cred = credentials.Certificate(
-    "ktubot-c3495-firebase-adminsdk-fbsvc-5ec25bbfae.json"
+    firebase_dict
 )  # Download from Firebase Console
 firebase_admin.initialize_app(cred)
 
