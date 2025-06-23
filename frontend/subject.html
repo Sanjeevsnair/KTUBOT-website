@@ -839,7 +839,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8000/api';
+        const API_BASE_URL = 'https://ktubot-website.onrender.com/api';
         const subjectsList = document.getElementById('subjects-list');
         const errorAlert = document.getElementById('error-alert');
         const errorMessage = document.getElementById('error-message');
@@ -1047,6 +1047,7 @@
             const card = document.createElement('div');
             card.className = 'subject-card';
             card.style.animationDelay = (index * 0.1) + 's';
+            const subjectnames = name;
             name = name.replace(/_/g, ' ')                          // Replace underscores with spaces
                 .toLowerCase()                               // Convert all to lowercase
                 .replace(/\b\w/g, char => char.toUpperCase());
@@ -1072,7 +1073,7 @@
                 }
             }, { passive: true });
 
-            card.addEventListener('click', () => selectSubject(card, name, department, semester));
+            card.addEventListener('click', () => selectSubject(card, subjectnames, department, semester));
             return card;
         }
 

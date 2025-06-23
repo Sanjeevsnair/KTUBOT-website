@@ -198,7 +198,7 @@ def list_files(folder_id):
 
 
 # Configure Gemini
-genai.configure(api_key="")
+genai.configure(api_key="AIzaSyDiTLuSzvhRqTAC4WuTO_On8LdUoxtmL5Q")
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
 
 
