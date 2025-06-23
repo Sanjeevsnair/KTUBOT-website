@@ -70,7 +70,7 @@ import re
 
 firebase_json = os.environ.get("FIREBASE_CREDS")
 if not firebase_json:
-    raise ValueError("GOOGLE_CREDS environment variable not set")
+    raise ValueError("FIREBASE_CREDS environment variable not set")
 
 firebase_dict = json.loads(firebase_json)
 
