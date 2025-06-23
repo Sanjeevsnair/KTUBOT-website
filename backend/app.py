@@ -1109,11 +1109,6 @@ async def chat_with_ai(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Serve frontend if needed
-@app.get("/", response_class=HTMLResponse)
-async def serve_frontend():
-    return FileResponse("frontend/index.html")
-
 
 # Mount static files if needed
 
