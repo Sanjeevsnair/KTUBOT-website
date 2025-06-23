@@ -770,7 +770,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8000/api';
+        const API_BASE_URL = 'https://zippy-seen-antimatter.glitch.me/api';
         const departmentsList = document.getElementById('departments-list');
         const errorAlert = document.getElementById('error-alert');
         const errorMessage = document.getElementById('error-message');
@@ -882,14 +882,7 @@
                 showError('Failed to load departments. Please try again.');
                 console.error('Error:', error);
                 hideLoadingWithAnimation();
-                setTimeout(() => renderDepartments([
-                    'Computer Science',
-                    'Electrical Engineering',
-                    'Mechanical Engineering',
-                    'Civil Engineering',
-                    'Chemical Engineering',
-                    'Software Engineering'
-                ]), 300);
+                
             }
         }
 
@@ -996,7 +989,7 @@
             setTimeout(() => {
                 ripple.remove();
                 style.remove();
-                window.location.href = `semester.html?department=${encodeURIComponent(departmentName)}`;
+                window.location.href = `https://zippy-seen-antimatter.glitch.me/semester.html?department=${encodeURIComponent(departmentName)}`;
             }, 600);
         }
 

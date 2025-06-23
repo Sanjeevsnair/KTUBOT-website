@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+gunicorn
+firebase-admin
+pydantic
+google-generativeai
+google-api-python-client
+google-auth
+requests
+urllib3
