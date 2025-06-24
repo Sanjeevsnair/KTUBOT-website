@@ -157,6 +157,7 @@
             justify-content: center;
             border-radius: 50%;
             background: var(--light-glass);
+            margin-bottom: 20px;
         }
 
         .sidebar-close:hover {
@@ -388,7 +389,7 @@
         /* Chat Header */
         .chat-header {
             padding: 8px 24px;
-            background: var(--dark-glass);
+            background: transparent;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--light-glass);
@@ -398,7 +399,6 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .chat-title {
@@ -624,8 +624,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
-            margin-bottom: 25px;
-
         }
 
         .message-user .message-bubble::before {
@@ -662,9 +660,9 @@
         /* AI Bubble - Sophisticated Glass Morphism */
         .message-ai .message-bubble {
             background: linear-gradient(135deg,
-                    rgba(30, 45, 66, 0.9) 100%,
-                    rgba(34, 56, 87, 0.6) 50%,
-                    rgba(30, 45, 66, 0.9) 100%);
+                    rgba(32, 45, 65, 0.8) 0%,
+                    rgba(37, 49, 66, 0.6) 50%,
+                    rgba(32, 45, 65, 0.8) 100%);
             color: var(--text-primary);
             border-radius: 20px 20px 20px 4px;
             margin-right: auto;
@@ -675,7 +673,6 @@
                 inset 0 -1px 0 rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
-            margin-bottom: 25px;
         }
 
         .message-ai .message-bubble::before {
@@ -1088,7 +1085,6 @@
             position: sticky;
             bottom: 0;
             z-index: 20;
-
         }
 
         .chat-input-box {
@@ -1234,7 +1230,7 @@
 
 
         .result-card h3 {
-            margin-bottom: 25px;
+            margin-bottom: 16px;
             color: var(--text-primary);
             font-size: 1.3rem;
             font-weight: 700;
@@ -1243,7 +1239,6 @@
 
         /* Enhanced Time Display */
         .message-ai .message-time {
-            display: none;
             font-size: 0.7rem;
             color: var(--text-tertiary);
             margin-top: 6px;
@@ -1251,7 +1246,6 @@
         }
 
         .message-user .message-time {
-            display: none;
             text-align: right;
             font-size: 0.7rem;
             color: var(--text-tertiary);
@@ -1642,8 +1636,25 @@
                 padding: 0;
             }
 
+            .message-avatar {
+                display: none;
+            }
+
             .message-bubble {
-                max-width: 85%;
+                max-width: 100%;
+            }
+
+            .message-user .message-bubble {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .message-ai .message-bubble {
+                /* Ensures it never exceeds viewport */
+                min-width: 100%;
+                max-width: 100%;
+                width: fit-content;
+                container-type: inline-size;
             }
 
             .result-image {
@@ -1651,20 +1662,97 @@
             }
 
             .chat-header {
-                padding: 12px 16px;
+                padding: 8px 16px;
+                background: #1f2a3d;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                border-bottom: none;
             }
 
             .chat-title {
                 gap: 12px;
+                display: none;
             }
 
             .chat-messages {
                 padding: 16px;
+                overflow-x: hidden;
+                max-width: 100%;
+                width: 100%;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             }
 
             .chat-input-container {
-                padding: 12px 16px;
+                padding: 2px 8px;
             }
+
+            .chat-input-box {
+                border-radius: 20px;
+            }
+
+
+            .diagram-container {
+                margin: 0.75rem 0;
+                border-radius: calc(var(--border-radius) * 0.8);
+            }
+
+            .contextual-diagram {
+                max-height: 120px;
+                padding: 10px;
+            }
+
+            .contextual-diagram:hover {
+                transform: scale(1.02);
+            }
+
+            .contextual-diagram.broken-image {
+                padding: 1.5rem;
+
+            }
+
+            .diagram-context {
+                font-size: 0.75rem;
+                padding: 10px 12px;
+            }
+
+            .academic-code-block {
+        margin: 1rem 0;
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .academic-code-block pre {
+        margin: 0;
+        padding: 1rem;
+        background: var(--bg-tertiary) !important;
+    }
+
+    .academic-code-block code {
+        font-size: 0.6rem !important;
+        white-space: pre;
+        word-wrap: normal;
+        overflow-x: auto;
+        display: block;
+        padding: 0.5rem;
+    }
+
+    .code-header {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .language-label {
+        font-size: 0.7rem;
+        margin-right: 0.5rem;
+    }
+
+    .copy-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
+    }
         }
 
         @media (min-width: 769px) {
@@ -2008,28 +2096,6 @@
             transform: scale(0.98);
         }
 
-        /* Responsive enhancements */
-        @media (max-width: 768px) {
-            .diagram-container {
-                margin: 1.5rem 0;
-                border-radius: var(--border-radius-sm);
-            }
-
-            .diagram-relevance {
-                padding: 12px 16px;
-                font-size: 0.8rem;
-            }
-
-            .contextual-diagram {
-                padding: 16px;
-                max-height: 300px;
-            }
-
-            .diagram-context {
-                padding: 12px 16px;
-                font-size: 0.8rem;
-            }
-        }
 
         /* Animations */
         @keyframes pulse {
@@ -2185,6 +2251,7 @@
 
         /* Enhanced Code Block Styling */
         .academic-code-block {
+            background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-secondary));
             border-radius: var(--border-radius);
             margin: 2rem 0;
             overflow: hidden;
@@ -2329,7 +2396,7 @@
             line-height: 1.6;
             color: rgba(255, 255, 255, 0.85);
             background:
-                rgb(26, 35, 51) !important;
+                linear-gradient(135deg, rgba(16, 23, 41, 0.8), rgba(30, 41, 59, 0.6)) !important;
             border: none !important;
             position: relative;
             font-weight: 400;
@@ -2411,36 +2478,7 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .academic-code-block {
-                margin: 1.5rem -1rem;
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
-            }
 
-            .code-header {
-                padding: 0.875rem 1rem;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .academic-code-block code {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-
-            .copy-btn {
-                padding: 0.375rem 0.75rem;
-                font-size: 0.7rem;
-            }
-
-            .language-label {
-                font-size: 0.7rem;
-                padding: 0.2rem 0.6rem;
-            }
-        }
 
         /* Focus states for accessibility */
         .copy-btn:focus {
@@ -2912,7 +2950,7 @@
                 const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
 
                 // Convert to HTML
-                let html = convertMarkdown(textWithoutTables);
+                let html = convertMarkdown(textWithoutCode);
 
                 // Apply academic styling
                 html = applyAcademicStyles(html);
@@ -3066,7 +3104,7 @@
             }
 
             function extractCodeBlocks(text) {
-                const codeRegex = /```(\w*)\n([^`]+)```/g;
+                const codeRegex = /```(\w*)([\s\S]*?)```/g;
                 const codeBlocks = [];
                 let lastIndex = 0;
                 let textWithoutCode = '';
@@ -3088,13 +3126,13 @@
             }
 
             function insertFormattedCodeBlocks(html, codeBlocks) {
-                for (let i = codeBlocks.length - 1; i >= 0; i--) {
-                    const block = codeBlocks[i];
-                    const placeholder = `[CODE${i}]`;
-                    const codeHtml = `
+    for (let i = codeBlocks.length - 1; i >= 0; i--) {
+        const block = codeBlocks[i];
+        const placeholder = `[CODE${i}]`;
+        const codeHtml = `
             <div class="academic-code-block" data-language="${escapeHtml(block.language)}">
                 <div class="code-header">
-                    <span class="language-label">${block.language.toUpperCase()}</span>
+                    <span class="language-label">${block.language.toUpperCase() || 'CODE'}</span>
                     <button class="copy-btn" onclick="copyCode(this)">
                         <i class="fas fa-copy"></i> Copy
                     </button>
@@ -3102,10 +3140,10 @@
                 <pre><code>${escapeHtml(block.content)}</code></pre>
             </div>
         `;
-                    html = html.replace(placeholder, codeHtml);
-                }
-                return html;
-            }
+        html = html.replace(placeholder, codeHtml);
+    }
+    return html;
+}
 
             // Add to your existing utility functions
             window.copyCode = function (button) {
@@ -3908,15 +3946,7 @@
                     });
 
                     if (!response.ok) {
-                        // Try to get error details from response
-                        let errorDetails = '';
-                        try {
-                            const errorResponse = await response.json();
-                            errorDetails = errorResponse.detail || JSON.stringify(errorResponse);
-                        } catch (e) {
-                            errorDetails = await response.text();
-                        }
-                        throw new Error(`Server error: ${response.status} ${response.statusText}. Details: ${errorDetails}`);
+                        throw new Error(`Server responded with status ${response.status}`);
                     }
 
                     const data = await response.json();
@@ -3942,9 +3972,12 @@
                     // Save updated chat history
                     saveChatHistory();
                 } catch (error) {
-                    console.error('Full error:', error);
+                    console.error('Chat error:', error);
+                    // Remove typing indicator
                     removeTypingIndicator();
-                    addMessage('ai', `Error: ${error.message}`);
+
+                    // Show error message
+                    addMessage('ai', `Sorry, I encountered an error: ${error.message}`);
                 }
             }
 
@@ -4176,32 +4209,108 @@
                 modalImage.style.display = 'none';
                 modal.style.display = 'flex';
 
+                // Add mobile-specific styles
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '9999';
+                modal.style.padding = '1rem';
+                modal.style.boxSizing = 'border-box';
+
                 // Load image in background
                 const img = new Image();
                 img.onload = function () {
                     modalImage.src = imageSrc;
+
+                    // Mobile responsive image styles
                     modalImage.style.display = 'block';
+                    modalImage.style.maxWidth = '100%';
+                    modalImage.style.maxHeight = '100%';
+                    modalImage.style.width = 'auto';
+                    modalImage.style.height = 'auto';
+                    modalImage.style.objectFit = 'contain';
+                    modalImage.style.borderRadius = '8px';
+                    modalImage.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
                 };
+
                 img.onerror = function () {
                     modalImage.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>';
+
+                    // Error state styles
                     modalImage.style.display = 'block';
+                    modalImage.style.maxWidth = '300px';
+                    modalImage.style.maxHeight = '200px';
+                    modalImage.style.width = '100%';
+                    modalImage.style.height = 'auto';
                     modalImage.style.padding = '2rem';
+                    modalImage.style.backgroundColor = '#f3f4f6';
+                    modalImage.style.borderRadius = '8px';
                 };
+
                 img.src = imageSrc;
 
-                // Close modal when clicking outside
+                // Close modal function
+                const closeModal = function () {
+                    modal.style.display = 'none';
+                    // Clean up event listeners
+                    modal.onclick = null;
+                    document.removeEventListener('keydown', escapeHandler);
+                };
+
+                // Close modal when clicking outside (works on mobile tap too)
                 modal.onclick = function (e) {
                     if (e.target === modal) {
-                        modal.style.display = 'none';
+                        closeModal();
+                    }
+                };
+
+                // ESC key handler
+                const escapeHandler = function (e) {
+                    if (e.key === 'Escape' && modal.style.display === 'flex') {
+                        closeModal();
                     }
                 };
 
                 // Close with ESC key
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape' && modal.style.display === 'flex') {
-                        modal.style.display = 'none';
+                document.addEventListener('keydown', escapeHandler);
+
+                // Prevent body scroll on mobile when modal is open
+                document.body.style.overflow = 'hidden';
+
+                // Restore body scroll when modal closes
+                const originalClose = closeModal;
+                window.closeModal = function () {
+                    document.body.style.overflow = '';
+                    originalClose();
+                };
+
+                // Touch/swipe to close on mobile (optional enhancement)
+                let startY = 0;
+                let startX = 0;
+
+                modal.addEventListener('touchstart', function (e) {
+                    startY = e.touches[0].clientY;
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+
+                modal.addEventListener('touchend', function (e) {
+                    if (!e.changedTouches[0]) return;
+
+                    const endY = e.changedTouches[0].clientY;
+                    const endX = e.changedTouches[0].clientX;
+                    const diffY = startY - endY;
+                    const diffX = startX - endX;
+
+                    // Close on significant swipe up or down
+                    if (Math.abs(diffY) > 100 && Math.abs(diffX) < 100) {
+                        closeModal();
                     }
-                });
+                }, { passive: true });
             };
 
 

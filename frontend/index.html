@@ -83,7 +83,7 @@
                 left: 0;
                 right: 0;
                 z-index: 1000;
-                padding: 16px 40px;
+                padding: 16px 1px;
                 transform: translateY(-100%);
                 transition: var(--transition-smooth);
             }
@@ -95,12 +95,17 @@
 
             .nav-content {
                 max-width: 1400px;
-                margin: 0 auto;
                 display: flex;
                 justify-content: space-between;
+                /* This is correct */
                 align-items: center;
                 height: 60px;
+                padding: 0 16px;
+                width: 100%;
             }
+
+
+
 
             /* Enhanced Logo */
             .logo {
@@ -119,6 +124,9 @@
                 display: flex;
                 align-items: center;
                 gap: 12px;
+                -webkit-tap-highlight-color: transparent;
+                outline: none;
+                margin-left: 0;
             }
 
             .logo:hover {
@@ -134,11 +142,17 @@
             /* User Profile Section */
             .user-profile-section {
                 position: relative;
+                -webkit-tap-highlight-color: transparent;
+                /* Removes gray highlight on iOS/Android */
+                outline: none;
+                margin-left: auto;
+                /* Removes blue outline on focus */
             }
 
             .user-profile-btn {
                 display: flex;
                 align-items: center;
+                margin-left: auto;
                 gap: 12px;
                 background: var(--glass-light);
                 backdrop-filter: blur(20px);
@@ -442,33 +456,7 @@
                 }
             }
 
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .nav-container {
-                    padding: 12px 20px;
-                }
 
-                .nav-content {
-                    height: 56px;
-                }
-
-                .logo {
-                    font-size: 1.6rem;
-                }
-
-                .user-info {
-                    display: none;
-                }
-
-                .profile-dropdown {
-                    min-width: 260px;
-                    right: -20px;
-                }
-
-                .profile-dropdown::before {
-                    right: 32px;
-                }
-            }
 
             @media (max-width: 480px) {
                 body {
@@ -1308,16 +1296,66 @@
             /* Responsive Design with Fluid Scaling */
             @media (max-width: 768px) {
                 .nav-container {
-                    padding: 15px 20px;
+                    padding: 10px 0;
                 }
 
                 .nav-links {
                     display: none;
                 }
 
+
+                .nav-content {
+                    padding: 0;
+                    /* remove left/right padding on mobile */
+                }
+
+                .logo {
+                    font-size: 1.5rem;
+                    margin-left: 0;
+                    /* ensure it's flush left */
+                }
+
+                .user-profile-btn {
+                    margin-right: 16px;
+                    gap: 0;
+                    padding: 2px;
+                    padding-right: 2px;
+                }
+
+                .user-info {
+                    display: none;
+                }
+
+
+
+                .profile-dropdown {
+                    position: absolute;
+                    right: 0;
+                    left: auto;
+                    top: 100%;
+                    /* adjust as needed */
+                    min-width: 260px;
+                    max-width: 90vw;
+                    /* keeps it inside the screen */
+                    box-sizing: border-box;
+                    overflow-x: hidden;
+                    z-index: 1000;
+
+
+                }
+
+                .profile-dropdown::before {
+                    right: 10px;
+
+                }
+
                 .scheme-buttons {
                     flex-direction: column;
                     gap: 20px;
+                    -webkit-tap-highlight-color: transparent;
+                    /* Removes gray highlight on iOS/Android */
+                    outline: none;
+                    /* Removes blue outline on focus */
                 }
 
                 .scheme-btn {
@@ -1385,7 +1423,7 @@
         <nav class="nav-container visible">
             <div class="nav-content">
                 <!-- Logo Section -->
-                <a href="#" class="logo">KTUBot</a>
+                <h1 class="logo">KTUBot</h1>
 
                 <!-- User Profile Section -->
                 <div class="user-profile-section">
@@ -1430,7 +1468,7 @@
                                 <i class="fas fa-cog"></i>
                                 <span>Settings</span>
                             </div>
-                            
+
                             <div class="dropdown-item">
                                 <i class="fas fa-question-circle"></i>
                                 <span>Help & Support</span>
@@ -1486,8 +1524,10 @@
                 <div class="hero-content">
                     <h1 class="hero-title">KTUBot</h1>
                     <p class="hero-subtitle">
-freestar
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nisi, eget malesuada turpis. Donec consequat augue sit amet elit facilisis porttitor. Sed auctor diam eu augue consectetur vestibulum. </p>
+                        freestar
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nisi, eget
+                        malesuada turpis. Donec consequat augue sit amet elit facilisis porttitor. Sed auctor diam eu
+                        augue consectetur vestibulum. </p>
 
                     <div class="scheme-buttons">
                         <button class="scheme-btn scheme-btn-2019">
@@ -1514,17 +1554,20 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nis
                     <div class="feature-card">
                         <i class="fas fa-brain feature-icon"></i>
                         <h3 class="feature-title">AI-Powered Learning</h3>
-                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nisi, eget malesuada turpis.</p>
+                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+                            ac porttitor nisi, eget malesuada turpis.</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-certificate feature-icon"></i>
                         <h3 class="feature-title">Certification Ready</h3>
-                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nisi, eget malesuada turpis.</p>
+                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+                            ac porttitor nisi, eget malesuada turpis.</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-clock feature-icon"></i>
                         <h3 class="feature-title">24/7 Support</h3>
-                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nisi, eget malesuada turpis.</p>
+                        <p class="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+                            ac porttitor nisi, eget malesuada turpis.</p>
                     </div>
                 </div>
             </section>
@@ -1533,7 +1576,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nis
                 <div class="info-card">
                     <h3 class="card-title">About This Platform</h3>
                     <p class="card-content">
-                        Cras facilisis, elit at gravida sodales, nulla erat vehicula nulla, sit amet ultrices eros sem quis felis. Mauris malesuada augue in eleifend tempus. Aliquam auctor dui sem, quis convallis sem commodo at. Pellentesque non neque magna. Cras volutpat orci a urna tempor, sit amet efficitur est placerat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce vulputate sit amet nisl id ultrices. Curabitur tincidunt sollicitudin eros, vel tempus nisi varius non.
+                        Cras facilisis, elit at gravida sodales, nulla erat vehicula nulla, sit amet ultrices eros sem
+                        quis felis. Mauris malesuada augue in eleifend tempus. Aliquam auctor dui sem, quis convallis
+                        sem commodo at. Pellentesque non neque magna. Cras volutpat orci a urna tempor, sit amet
+                        efficitur est placerat. Pellentesque habitant morbi tristique senectus et netus et malesuada
+                        fames ac turpis egestas. Fusce vulputate sit amet nisl id ultrices. Curabitur tincidunt
+                        sollicitudin eros, vel tempus nisi varius non.
                     </p>
                 </div>
             </section>
@@ -1546,24 +1594,24 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac porttitor nis
         <script>
 
             if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-  }
+                history.scrollRestoration = 'manual';
+            }
 
-  // Always scroll to top on load
-  window.addEventListener('load', () => {
-    setTimeout(() => window.scrollTo(0, 0), 0);
-  });
+            // Always scroll to top on load
+            window.addEventListener('load', () => {
+                setTimeout(() => window.scrollTo(0, 0), 0);
+            });
 
-  // Also reset scroll before unload
-  window.addEventListener('beforeunload', () => {
-    window.scrollTo(0, 0);
-  });
+            // Also reset scroll before unload
+            window.addEventListener('beforeunload', () => {
+                window.scrollTo(0, 0);
+            });
 
-  // For SPA routing (like React, Vue, etc.), trigger manually if needed
-  // Example: Scroll to top on hashchange (for anchor links or SPA routes)
-  window.addEventListener('hashchange', () => {
-    window.scrollTo(0, 0);
-  });
+            // For SPA routing (like React, Vue, etc.), trigger manually if needed
+            // Example: Scroll to top on hashchange (for anchor links or SPA routes)
+            window.addEventListener('hashchange', () => {
+                window.scrollTo(0, 0);
+            });
             // Enhanced scroll progress with debounce and smoother animation
             let scrollTicking = false;
             let lastScrollPosition = 0;

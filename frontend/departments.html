@@ -39,7 +39,9 @@
             box-sizing: border-box;
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             will-change: transform, opacity, filter;
             backface-visibility: hidden;
         }
@@ -72,15 +74,20 @@
         }
 
         @keyframes backgroundShift {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(0) translateY(0) scale(1);
             }
+
             25% {
                 transform: translateX(5px) translateY(-5px) scale(1.02);
             }
+
             50% {
                 transform: translateX(-5px) translateY(5px) scale(0.98);
             }
+
             75% {
                 transform: translateX(5px) translateY(5px) scale(1.01);
             }
@@ -113,14 +120,17 @@
                 transform: translate3d(0, 100vh, 0) scale(0);
                 opacity: 0;
             }
+
             10% {
                 opacity: 1;
                 transform: translate3d(0, 90vh, 0) scale(1);
             }
+
             90% {
                 opacity: 1;
                 transform: translate3d(0, 10vh, 0) scale(1);
             }
+
             100% {
                 transform: translate3d(0, 0, 0) scale(0);
                 opacity: 0;
@@ -156,9 +166,12 @@
         }
 
         @keyframes panelFloat {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate3d(0, 0, 0) rotateX(0deg);
             }
+
             50% {
                 transform: translate3d(0, -10px, 0) rotateX(0.5deg);
             }
@@ -191,6 +204,7 @@
             0% {
                 opacity: 0.3;
             }
+
             100% {
                 opacity: 0.6;
             }
@@ -240,6 +254,7 @@
             0% {
                 transform: translateX(-100%) translateY(-100%) rotate(45deg);
             }
+
             100% {
                 transform: translateX(100%) translateY(100%) rotate(45deg);
             }
@@ -278,6 +293,7 @@
             0% {
                 filter: brightness(1);
             }
+
             100% {
                 filter: brightness(1.2);
             }
@@ -352,7 +368,7 @@
         }
 
         .dept-card:hover {
-            transition: 
+            transition:
                 transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
                 box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
                 border-color 0.3s ease-out;
@@ -407,6 +423,7 @@
                 transform: scale(0);
                 opacity: 1;
             }
+
             100% {
                 transform: scale(2);
                 opacity: 0;
@@ -531,16 +548,20 @@
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(-50%, -50%) scale(0.5);
                 opacity: 1;
             }
+
             50% {
                 transform: translate(-50%, -50%) scale(1);
                 opacity: 0.5;
@@ -578,6 +599,7 @@
                 transform: translateZ(20px) translateY(-20px);
                 opacity: 0;
             }
+
             100% {
                 transform: translateZ(20px) translateY(0);
                 opacity: 1;
@@ -620,6 +642,7 @@
             0% {
                 box-shadow: var(--shadow-floating), 0 0 60px rgba(59, 130, 246, 0.4);
             }
+
             100% {
                 box-shadow: var(--shadow-floating), 0 0 80px rgba(59, 130, 246, 0.6);
             }
@@ -627,6 +650,7 @@
 
         /* Responsive design with enhanced mobile experience */
         @media (max-width: 768px) {
+
             .container {
                 padding: 1rem;
             }
@@ -634,6 +658,22 @@
             .main-panel {
                 padding: 2rem;
                 border-radius: 20px;
+            }
+
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 1rem;
+                box-sizing: border-box;
+            }
+
+            .main-panel {
+                padding: 2rem;
+                border-radius: 20px;
+                width: 100%;
+                max-width: 500px;
+                /* optional, keeps panel narrow */
             }
 
             .title {
@@ -717,6 +757,7 @@
                 transform: translate3d(0, 30px, -50px);
                 opacity: 0;
             }
+
             100% {
                 transform: translate3d(0, 0, 0);
                 opacity: 1;
@@ -764,7 +805,7 @@
         </div>
 
         <footer class="footer">
-                        <p>© 2025 KTUBot</p>
+            <p>© 2025 KTUBot</p>
 
         </footer>
     </div>
@@ -806,23 +847,23 @@
         function createParticles() {
             const particlesContainer = document.querySelector('.particles');
             particlesContainer.innerHTML = '';
-            
+
             const particleCount = Math.min(30, Math.floor(window.innerWidth / 30));
             const fragment = document.createDocumentFragment();
-            
+
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDelay = Math.random() * 15 + 's';
                 particle.style.animationDuration = (8 + Math.random() * 7) + 's';
-                
+
                 const colors = ['rgba(59, 130, 246, 0.6)', 'rgba(99, 102, 241, 0.6)', 'rgba(139, 92, 246, 0.6)'];
                 particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
+
                 fragment.appendChild(particle);
             }
-            
+
             particlesContainer.appendChild(fragment);
         }
 
@@ -836,16 +877,16 @@
                 lastTime = time;
                 const mainPanel = document.querySelector('.main-panel');
                 if (!mainPanel) return;
-                
+
                 const rect = mainPanel.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
-                
+
                 const deltaX = (mouseX - centerX) / rect.width;
                 const deltaY = (mouseY - centerY) / rect.height;
                 const rotateX = deltaY * 5;
                 const rotateY = deltaX * 5;
-                
+
                 mainPanel.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
             }
             rafId = requestAnimationFrame(updateParallax);

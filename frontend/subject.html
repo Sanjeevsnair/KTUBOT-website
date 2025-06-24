@@ -689,12 +689,19 @@
         /* Responsive design with enhanced mobile experience */
         @media (max-width: 768px) {
             .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 padding: 1rem;
+                box-sizing: border-box;
             }
 
             .main-panel {
                 padding: 2rem;
                 border-radius: 20px;
+                width: 100%;
+                max-width: 500px;
+                /* optional, keeps panel narrow */
             }
 
             .title {
