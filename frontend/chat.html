@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Engineering Study Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<<<<<<< HEAD
     <!-- Add this to your <head> section -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+=======
+>>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -2504,6 +2507,7 @@
             background: rgba(99, 102, 241, 0.3);
             color: inherit;
         }
+<<<<<<< HEAD
 
         .math-display,
         .math-inline {
@@ -2525,6 +2529,8 @@
             font-size: 0.9em;
             vertical-align: middle;
         }
+=======
+>>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
     </style>
 </head>
 
@@ -2928,7 +2934,10 @@
                     console.log("Formatted HTML:", formatAcademicResponse(content));
 
                     setTimeout(() => {
+<<<<<<< HEAD
                         renderMathExpressions(bubbleDiv);
+=======
+>>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
                         bubbleDiv.querySelectorAll('img').forEach(img => {
                             img.style.maxWidth = '100%';
                             img.style.borderRadius = 'var(--border-radius-sm)';
@@ -2999,6 +3008,7 @@
             const diagramsBaseUrl = '/diagrams'; // Update this to match your backend diagram route
 
             function formatAcademicResponse(response) {
+<<<<<<< HEAD
                 let cleanedResponse = response.replace(/\[\d+\.\s*•/g, '•') // Fix [1. • pattern
                        .replace(/\d+\.\s*•/g, '•') // Fix 1. • pattern
                        .replace(/•\s*\d+\./g, '•'); // Fix • 1. pattern
@@ -3013,10 +3023,24 @@
 
                 // Convert to HTML
                 let html = convertMarkdown(textWithoutDiagrams);
+=======
+                // Process code blocks first
+                const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
+
+                // Then process diagrams
+                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+
+                // Process tables - extract table placeholders and HTML tables
+                const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
+
+                // Convert to HTML
+                let html = convertMarkdown(textWithoutCode);
+>>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
 
                 // Apply academic styling
                 html = applyAcademicStyles(html);
 
+<<<<<<< HEAD
                 // Process LaTeX expressions
                 html = processLatexExpressions(html);
 
@@ -3042,6 +3066,17 @@
 
                 return processed;
             }
+=======
+                // Insert formatted code blocks
+                html = insertFormattedCodeBlocks(html, codeBlocks);
+
+                // Insert tables in their original positions
+                html = insertTables(html, tables);
+
+                // Insert diagrams in their original positions
+                return insertDiagramsWithContext(html, diagrams);
+            }
+>>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
 
             function extractTables(text) {
                 const tables = [];
