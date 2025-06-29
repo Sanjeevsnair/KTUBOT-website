@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Engineering Study Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add this to your <head> section -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -2500,6 +2503,41 @@
             background: rgba(99, 102, 241, 0.3);
             color: inherit;
         }
+
+        /* Add to your existing styles */
+.MathJax {
+    color: var(--text-primary);
+    font-size: 1.1em;
+}
+
+/* Display math should be centered */
+.MathJax_Display {
+    text-align: center;
+    margin: 1em 0;
+    overflow-x: auto;
+}
+
+/* Inline math should match text color */
+.mjx-chtml {
+    color: inherit;
+}
+
+/* Better spacing for equations */
+.MathJax_Display > .mjx-chtml {
+    padding: 0.5em 0;
+}
+
+/* Responsive math */
+@media (max-width: 768px) {
+    .MathJax {
+        font-size: 1em;
+    }
+    
+    .MathJax_Display {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
     </style>
 </head>
 
@@ -2889,6 +2927,11 @@
                     console.log("Formatted HTML:", formatAcademicResponse(content));
 
                     setTimeout(() => {
+                        if (window.MathJax) {
+                MathJax.typesetPromise([bubbleDiv]).catch(err => {
+                    console.log('MathJax typeset error:', err);
+                });
+            }
                         bubbleDiv.querySelectorAll('img').forEach(img => {
                             img.style.maxWidth = '100%';
                             img.style.borderRadius = 'var(--border-radius-sm)';
@@ -2940,30 +2983,101 @@
             const diagramsBaseUrl = '/diagrams'; // Update this to match your backend diagram route
 
             function formatAcademicResponse(response) {
-                // Process code blocks first
-                const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
+    // First extract code blocks to preserve them
+    const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
+    
+    // Then process diagrams
+    const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+    
+    // Process tables - extract table placeholders and HTML tables
+    const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
+    
+    // Convert markdown to HTML (but preserve LaTeX)
+    let html = convertMarkdownPreservingLaTeX(textWithoutTables);
+    
+    // Apply academic styling
+    html = applyAcademicStyles(html);
+    
+    // Insert formatted code blocks
+    html = insertFormattedCodeBlocks(html, codeBlocks);
+    
+    // Insert tables in their original positions
+    html = insertTables(html, tables);
+    
+    // Insert diagrams in their original positions
+    const finalHtml = insertDiagramsWithContext(html, diagrams);
+    
+    // Queue MathJax typesetting after content is inserted
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
+    
+    return finalHtml;
+}
 
-                // Then process diagrams
-                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
+function convertMarkdownPreservingLaTeX(text) {
+    // First protect LaTeX math expressions
+    const protected = protectLaTeX(text);
+    
+    // Then convert markdown
+    let html = convertMarkdown(protected.text);
+    
+    // Restore LaTeX expressions
+    html = restoreLaTeX(html, protected.mathExpressions);
+    
+    return html;
+}
 
-                // Process tables - extract table placeholders and HTML tables
-                const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
+function protectLaTeX(text) {
+    const mathExpressions = [];
+    let counter = 0;
+    
+    // Handle display math $$...$$
+    let processedText = text.replace(/\$\$(.*?)\$\$/gs, (match, content) => {
+        const placeholder = `MATH_DISPLAY_${counter++}`;
+        mathExpressions.push({
+            type: 'display',
+            content: content.trim(),
+            placeholder: placeholder
+        });
+        return placeholder;
+    });
+    
+    // Handle inline math $...$
+    processedText = processedText.replace(/(^|[^\\])\$(.*?)\$/g, (match, prefix, content) => {
+        const placeholder = `MATH_INLINE_${counter++}`;
+        mathExpressions.push({
+            type: 'inline',
+            content: content.trim(),
+            placeholder: placeholder
+        });
+        return prefix + placeholder;
+    });
+    
+    return {
+        text: processedText,
+        mathExpressions: mathExpressions
+    };
+}
 
-                // Convert to HTML
-                let html = convertMarkdown(textWithoutCode);
-
-                // Apply academic styling
-                html = applyAcademicStyles(html);
-
-                // Insert formatted code blocks
-                html = insertFormattedCodeBlocks(html, codeBlocks);
-
-                // Insert tables in their original positions
-                html = insertTables(html, tables);
-
-                // Insert diagrams in their original positions
-                return insertDiagramsWithContext(html, diagrams);
-            }
+function restoreLaTeX(html, mathExpressions) {
+    let processedHtml = html;
+    
+    // Restore in reverse order to avoid placeholder conflicts
+    for (let i = mathExpressions.length - 1; i >= 0; i--) {
+        const expr = mathExpressions[i];
+        const latexContent = expr.type === 'display' 
+            ? `\\[${expr.content}\\]` 
+            : `\\(${expr.content}\\)`;
+        
+        processedHtml = processedHtml.replace(
+            new RegExp(expr.placeholder, 'g'),
+            latexContent
+        );
+    }
+    
+    return processedHtml;
+}
 
             function extractTables(text) {
                 const tables = [];
