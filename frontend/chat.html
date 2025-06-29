@@ -7,8 +7,9 @@
     <title>Engineering Study Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Add this to your <head> section -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -1720,42 +1721,42 @@
             }
 
             .academic-code-block {
-        margin: 1rem 0;
-        border-radius: var(--border-radius-sm);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+                margin: 1rem 0;
+                border-radius: var(--border-radius-sm);
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
 
-    .academic-code-block pre {
-        margin: 0;
-        padding: 1rem;
-        background: var(--bg-tertiary) !important;
-    }
+            .academic-code-block pre {
+                margin: 0;
+                padding: 1rem;
+                background: var(--bg-tertiary) !important;
+            }
 
-    .academic-code-block code {
-        font-size: 0.6rem !important;
-        white-space: pre;
-        word-wrap: normal;
-        overflow-x: auto;
-        display: block;
-        padding: 0.5rem;
-    }
+            .academic-code-block code {
+                font-size: 0.6rem !important;
+                white-space: pre;
+                word-wrap: normal;
+                overflow-x: auto;
+                display: block;
+                padding: 0.5rem;
+            }
 
-    .code-header {
-        padding: 0.75rem 1rem;
-        flex-wrap: wrap;
-    }
+            .code-header {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+            }
 
-    .language-label {
-        font-size: 0.7rem;
-        margin-right: 0.5rem;
-    }
+            .language-label {
+                font-size: 0.7rem;
+                margin-right: 0.5rem;
+            }
 
-    .copy-btn {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.7rem;
-        margin-top: 0.25rem;
-    }
+            .copy-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.7rem;
+                margin-top: 0.25rem;
+            }
         }
 
         @media (min-width: 769px) {
@@ -2504,40 +2505,26 @@
             color: inherit;
         }
 
-        /* Add to your existing styles */
-.MathJax {
-    color: var(--text-primary);
-    font-size: 1.1em;
-}
+        .math-display,
+        .math-inline {
+            color: var(--text-primary);
+            font-family: KaTeX_Main, Times New Roman, serif;
+        }
 
-/* Display math should be centered */
-.MathJax_Display {
-    text-align: center;
-    margin: 1em 0;
-    overflow-x: auto;
-}
+        .math-display {
+            display: block;
+            margin: 1em 0;
+            text-align: center;
+        }
 
-/* Inline math should match text color */
-.mjx-chtml {
-    color: inherit;
-}
+        .math-inline {
+            display: inline;
+        }
 
-/* Better spacing for equations */
-.MathJax_Display > .mjx-chtml {
-    padding: 0.5em 0;
-}
-
-/* Responsive math */
-@media (max-width: 768px) {
-    .MathJax {
-        font-size: 1em;
-    }
-    
-    .MathJax_Display {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
+        .fa-square-root-alt {
+            font-size: 0.9em;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -2664,7 +2651,7 @@
             let currentConversationId = Date.now().toString();
             const userData = JSON.parse(localStorage.getItem('firebaseUser'));
 
-            // API base URL
+            // API base UR
             const API_BASE_URL = 'https://ktubot-website.onrender.com/api';
 
             // Get parameters from URL
@@ -2886,6 +2873,20 @@
                 }
             }
 
+            function renderMathExpressions(element = document.body) {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(element, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false },
+                            { left: '\\(', right: '\\)', display: false },
+                            { left: '\\[', right: '\\]', display: true }
+                        ],
+                        throwOnError: false
+                    });
+                }
+            }
+
             function addMessage(role, content, isGeminiResponse = false) {
                 const welcomeContainer = document.getElementById('welcome-container');
                 if (welcomeContainer) {
@@ -2927,11 +2928,7 @@
                     console.log("Formatted HTML:", formatAcademicResponse(content));
 
                     setTimeout(() => {
-                        if (window.MathJax) {
-                MathJax.typesetPromise([bubbleDiv]).catch(err => {
-                    console.log('MathJax typeset error:', err);
-                });
-            }
+                        renderMathExpressions(bubbleDiv);
                         bubbleDiv.querySelectorAll('img').forEach(img => {
                             img.style.maxWidth = '100%';
                             img.style.borderRadius = 'var(--border-radius-sm)';
@@ -2954,7 +2951,26 @@
 
 
 
-                // Try to parse as HTML first, if that fails use plain text
+                function convertMarkdown(text) {
+                    // First protect LaTeX expressions from markdown processing
+                    const protected = text.replace(/(\$\$.*?\$\$|\$.*?\$)/gs, match => {
+                        return `%%LATEX%%${btoa(encodeURIComponent(match))}%%LATEX%%`;
+                    });
+
+                    // Then do normal markdown processing
+                    let html = protected
+                        // Headers
+                        .replace(/^#\s+(.*)/gm, '<h1>$1</h1>')
+                        .replace(/^##\s+(.*)/gm, '<h2>$1</h2>')
+                    // ... other markdown conversions ...
+
+                    // Restore LaTeX expressions
+                    html = html.replace(/%%LATEX%%(.*?)%%LATEX%%/gs, match => {
+                        return decodeURIComponent(atob(match.replace(/%%LATEX%%/g, '')));
+                    });
+
+                    return html;
+                }
 
 
                 // Add timestamp
@@ -2983,101 +2999,49 @@
             const diagramsBaseUrl = '/diagrams'; // Update this to match your backend diagram route
 
             function formatAcademicResponse(response) {
-    // First extract code blocks to preserve them
-    const { textWithoutCode, codeBlocks } = extractCodeBlocks(response);
-    
-    // Then process diagrams
-    const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutCode);
-    
-    // Process tables - extract table placeholders and HTML tables
-    const { textWithoutTables, tables } = extractTables(textWithoutDiagrams);
-    
-    // Convert markdown to HTML (but preserve LaTeX)
-    let html = convertMarkdownPreservingLaTeX(textWithoutTables);
-    
-    // Apply academic styling
-    html = applyAcademicStyles(html);
-    
-    // Insert formatted code blocks
-    html = insertFormattedCodeBlocks(html, codeBlocks);
-    
-    // Insert tables in their original positions
-    html = insertTables(html, tables);
-    
-    // Insert diagrams in their original positions
-    const finalHtml = insertDiagramsWithContext(html, diagrams);
-    
-    // Queue MathJax typesetting after content is inserted
-    if (window.MathJax) {
-        MathJax.typesetPromise();
-    }
-    
-    return finalHtml;
-}
+                let cleanedResponse = response.replace(/\[\d+\.\s*•/g, '•') // Fix [1. • pattern
+                       .replace(/\d+\.\s*•/g, '•') // Fix 1. • pattern
+                       .replace(/•\s*\d+\./g, '•'); // Fix • 1. pattern
+                // First extract code blocks to prevent LaTeX processing inside them
+                const { textWithoutCode, codeBlocks } = extractCodeBlocks(cleanedResponse);
 
-function convertMarkdownPreservingLaTeX(text) {
-    // First protect LaTeX math expressions
-    const protected = protectLaTeX(text);
-    
-    // Then convert markdown
-    let html = convertMarkdown(protected.text);
-    
-    // Restore LaTeX expressions
-    html = restoreLaTeX(html, protected.mathExpressions);
-    
-    return html;
-}
+                // Then extract tables
+                const { textWithoutTables, tables } = extractTables(textWithoutCode);
 
-function protectLaTeX(text) {
-    const mathExpressions = [];
-    let counter = 0;
-    
-    // Handle display math $$...$$
-    let processedText = text.replace(/\$\$(.*?)\$\$/gs, (match, content) => {
-        const placeholder = `MATH_DISPLAY_${counter++}`;
-        mathExpressions.push({
-            type: 'display',
-            content: content.trim(),
-            placeholder: placeholder
-        });
-        return placeholder;
-    });
-    
-    // Handle inline math $...$
-    processedText = processedText.replace(/(^|[^\\])\$(.*?)\$/g, (match, prefix, content) => {
-        const placeholder = `MATH_INLINE_${counter++}`;
-        mathExpressions.push({
-            type: 'inline',
-            content: content.trim(),
-            placeholder: placeholder
-        });
-        return prefix + placeholder;
-    });
-    
-    return {
-        text: processedText,
-        mathExpressions: mathExpressions
-    };
-}
+                // Then extract diagrams
+                const { textWithoutDiagrams, diagrams } = extractDiagramsWithPrecision(textWithoutTables);
 
-function restoreLaTeX(html, mathExpressions) {
-    let processedHtml = html;
-    
-    // Restore in reverse order to avoid placeholder conflicts
-    for (let i = mathExpressions.length - 1; i >= 0; i--) {
-        const expr = mathExpressions[i];
-        const latexContent = expr.type === 'display' 
-            ? `\\[${expr.content}\\]` 
-            : `\\(${expr.content}\\)`;
-        
-        processedHtml = processedHtml.replace(
-            new RegExp(expr.placeholder, 'g'),
-            latexContent
-        );
-    }
-    
-    return processedHtml;
-}
+                // Convert to HTML
+                let html = convertMarkdown(textWithoutDiagrams);
+
+                // Apply academic styling
+                html = applyAcademicStyles(html);
+
+                // Process LaTeX expressions
+                html = processLatexExpressions(html);
+
+                // Insert formatted code blocks
+                html = insertFormattedCodeBlocks(html, codeBlocks);
+
+                // Insert tables
+                html = insertTables(html, tables);
+
+                // Insert diagrams
+                return insertDiagramsWithContext(html, diagrams);
+            }
+
+            function processLatexExpressions(html) {
+                // Handle both inline ($...$) and display ($$...$$) math
+                let processed = html.replace(/\$\$(.*?)\$\$/gs, (match, equation) => {
+                    return `<div class="math-display">${equation}</div>`;
+                });
+
+                processed = processed.replace(/\$(.*?)\$/g, (match, equation) => {
+                    return `<span class="math-inline">${equation}</span>`;
+                });
+
+                return processed;
+            }
 
             function extractTables(text) {
                 const tables = [];
@@ -3240,10 +3204,10 @@ function restoreLaTeX(html, mathExpressions) {
             }
 
             function insertFormattedCodeBlocks(html, codeBlocks) {
-    for (let i = codeBlocks.length - 1; i >= 0; i--) {
-        const block = codeBlocks[i];
-        const placeholder = `[CODE${i}]`;
-        const codeHtml = `
+                for (let i = codeBlocks.length - 1; i >= 0; i--) {
+                    const block = codeBlocks[i];
+                    const placeholder = `[CODE${i}]`;
+                    const codeHtml = `
             <div class="academic-code-block" data-language="${escapeHtml(block.language)}">
                 <div class="code-header">
                     <span class="language-label">${block.language.toUpperCase() || 'CODE'}</span>
@@ -3254,10 +3218,10 @@ function restoreLaTeX(html, mathExpressions) {
                 <pre><code>${escapeHtml(block.content)}</code></pre>
             </div>
         `;
-        html = html.replace(placeholder, codeHtml);
-    }
-    return html;
-}
+                    html = html.replace(placeholder, codeHtml);
+                }
+                return html;
+            }
 
             // Add to your existing utility functions
             window.copyCode = function (button) {
@@ -3692,7 +3656,10 @@ function restoreLaTeX(html, mathExpressions) {
 
                 const cleanText = text.trim();
 
-                return cleanText
+                // First convert numbered lists to bullet points
+                let processedText = cleanText.replace(/^\s*\d+\.\s+/gm, '• ');
+
+                return processedText
                     // Headers
                     .replace(/^#\s+(.*)/gm, '<h1>$1</h1>')
                     .replace(/^##\s+(.*)/gm, '<h2>$1</h2>')
@@ -3703,11 +3670,9 @@ function restoreLaTeX(html, mathExpressions) {
                     .replace(/\*(.*?)\*/g, '<em>$1</em>')
                     .replace(/`(.*?)`/g, '<code>$1</code>')
 
-                    // Lists
+                    // Lists - now only handling bullet points
                     .replace(/^\s*[\•\-]\s+(.*)/gm, '<li>$1</li>')
-                    .replace(/^(\d+)\.\s+(.*)/gm, '<li data-number="$1">$2</li>')
                     .replace(/(<li>.*<\/li>)+/gs, '<ul>$&</ul>')
-                    .replace(/(<li data-number.*<\/li>)+/gs, '<ol>$&</ol>')
 
                     // Links
                     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
@@ -3726,6 +3691,42 @@ function restoreLaTeX(html, mathExpressions) {
 
                     // Clean up empty paragraphs
                     .replace(/<p>\s*<\/p>/g, '');
+            }
+
+            function formatTextWithBulletPoints(text) {
+                if (!text) return '';
+
+                // First convert any numbered lists to bullet points
+                let processedText = text.replace(/^\s*\d+\.\s+/gm, '• ');
+
+                // Then process bullet points
+                const lines = processedText.split('\n');
+                let inList = false;
+                let html = '';
+
+                lines.forEach(line => {
+                    if (line.startsWith('• ') || line.startsWith('- ') || line.startsWith('* ')) {
+                        if (!inList) {
+                            html += '<ul class="modern-bullets">';
+                            inList = true;
+                        }
+                        // Remove any numbering that might still be present
+                        const cleanLine = line.replace(/^[\d\.\s]+/, '').replace(/^[\•\-\*]\s*/, '');
+                        html += `<li>${cleanLine}</li>`;
+                    } else {
+                        if (inList) {
+                            html += '</ul>';
+                            inList = false;
+                        }
+                        if (line.trim() !== '') {
+                            html += `<p>${line}</p>`;
+                        }
+                    }
+                });
+
+                if (inList) html += '</ul>';
+
+                return html;
             }
 
             /**
@@ -4175,8 +4176,13 @@ function restoreLaTeX(html, mathExpressions) {
                     id: currentConversationId,
                     title: messages[0].content.substring(0, 30),
                     timestamp: new Date().toISOString(),
-                    messages: messages,
-                    hasImages: messages.some(m => m.containsImages)
+                    messages: messages.map(msg => ({
+                        ...msg,
+                        // Ensure LaTeX is preserved in saved content
+                        content: msg.isFormatted ? msg.content : escapeLatex(msg.content)
+                    })),
+                    hasImages: messages.some(m => m.containsImages),
+                    hasMath: messages.some(m => containsLatex(m.content)) // New flag for conversations with math
                 };
 
                 if (existingIndex >= 0) {
@@ -4187,6 +4193,16 @@ function restoreLaTeX(html, mathExpressions) {
 
                 localStorage.setItem('chatConversations', JSON.stringify(conversations.slice(0, 20)));
                 renderConversationHistory();
+            }
+
+            // Helper function to check for LaTeX content
+            function containsLatex(text) {
+                return (/\$(.*?)\$|\$\$(.*?)\$\$/).test(text);
+            }
+
+            // Helper function to escape LaTeX for storage
+            function escapeLatex(text) {
+                return text.replace(/\$/g, '\\$');
             }
 
             // Update the loadConversation function to handle images:
@@ -4222,17 +4238,17 @@ function restoreLaTeX(html, mathExpressions) {
                             const doc = parser.parseFromString(msg.content, 'text/html');
                             bubbleDiv.innerHTML = doc.body.innerHTML;
 
-                            // Process images after they're added to DOM
+                            // Process content after it's added to DOM
                             setTimeout(() => {
+                                // Render math expressions
+                                renderMathExpressions(bubbleDiv);
+
+                                // Process images
                                 bubbleDiv.querySelectorAll('img').forEach(img => {
                                     img.style.maxWidth = '100%';
                                     img.style.borderRadius = 'var(--border-radius-sm)';
                                     img.style.cursor = 'pointer';
-
-                                    // Ensure images are clickable
                                     img.onclick = () => openModal(img.src);
-
-                                    // Handle broken images
                                     img.onerror = () => {
                                         img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="%236366f1"><rect width="200" height="150" fill="%23334155" rx="12"/><path d="M70 50h60v8H70zm0 20h80v6H70zm0 16h50v6H70z" fill="%236366f1"/><circle cx="160" cy="40" r="8" fill="%23818cf8"/><path d="M40 90l30-20 20 15 30-25 40 30v40H40z" fill="%23818cf8" opacity="0.6"/></svg>';
                                         img.style.padding = '2rem';
@@ -4240,7 +4256,11 @@ function restoreLaTeX(html, mathExpressions) {
                                 });
                             }, 0);
                         } else {
+                            // For plain text messages, still check for LaTeX
                             bubbleDiv.textContent = msg.content;
+                            setTimeout(() => {
+                                renderMathExpressions(bubbleDiv);
+                            }, 0);
                         }
 
                         // Add timestamp

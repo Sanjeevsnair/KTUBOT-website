@@ -68,6 +68,7 @@ drive_service = build(
 
 import re
 
+
 firebase_json = os.environ.get("FIREBASE_CREDS")
 if not firebase_json:
     raise ValueError("FIREBASE_CREDS environment variable not set")
@@ -777,11 +778,8 @@ Your response MUST use this exact format:
    - First match subtopic content if relevant
    - Then match topic content
    - Finally module overview if needed
-5. STRICTLY convert any LaTeX math expressions to plain text:
-   - $E=mc^2$ → E=mc^2
-   - \frac{'a'}{'b'} → a/b
-   - \sqrt{'x'} → sqrt(x)
-   - Remove all other LaTeX commands
+5. You are a Markdown-based technical assistant. Render all LaTeX expressions strictly using Markdown syntax. Use $$...$$ for display math and \\(...\\) for inline math. Convert all LaTeX environments like \\begin{{equation}}...\\end{{equation}} into $$...$$ blocks. Never output LaTeX in backticks or as plain text. Escape special LaTeX characters when inside Markdown text. If syntax issues are found, correct them silently. Do not omit, modify, simplify, or rephrase any part of the content inside LaTeX code—preserve the LaTeX expressions exactly as they are. Prioritize rendering fidelity. Example: Inline: \\(E=mc^2\\), Display: $$F=ma$$.
+
 
 **Response**:
 """
@@ -789,65 +787,22 @@ Your response MUST use this exact format:
 
 
 def latex_to_plaintext(text: str) -> str:
-    """Convert LaTeX to plain text with special handling for equations"""
+    """Convert LaTeX to plain text with special handling for lstlisting and math, but preserve table placeholders"""
     if not text:
         return text
 
-    # First preserve table placeholders
+    # Preserve table placeholders
     table_placeholders = re.findall(r'\[TABLE_PLACEHOLDER_\d+\]', text)
     
-    # Process lstlisting blocks first
+    # First process lstlisting blocks
     text = process_lstlisting_blocks(text)
     
-    # Handle LaTeX equations
-    text = convert_latex_equations(text)
-    
-    # Remove other LaTeX commands
-    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)
-    text = re.sub(r"[{}]", "", text)
-    
-    return text
-
-def convert_latex_equations(text: str) -> str:
-    """Convert LaTeX equations to readable plain text with proper formatting"""
-    # Handle display equations (\[ \] and equation environments)
-    text = re.sub(r'\\\[(.*?)\\\]', r'$$\1$$', text)
-    text = re.sub(r'\\begin\{equation\*\}(.*?)\\end\{equation\*\}', r'$$\1$$', text)
-    text = re.sub(r'\\begin\{equation\}(.*?)\\end\{equation\}', r'$$\1$$', text)
-    text = re.sub(r'\\begin\{align\*\}(.*?)\\end\{align\*\}', r'$$\1$$', text)
-    text = re.sub(r'\\begin\{align\}(.*?)\\end\{align\}', r'$$\1$$', text)
-    
-    # Handle inline math ($ $)
-    text = re.sub(r'\$(.*?)\$', r'$\1$', text)
-    
-    # Clean up common LaTeX commands
-    text = re.sub(r'\\text\{(.*?)\}', r'\1', text)  # \text{}
-    text = re.sub(r'\\mathrm\{(.*?)\}', r'\1', text)  # \mathrm{}
-    text = re.sub(r'\\mathbf\{(.*?)\}', r'**\1**', text)  # \mathbf{} to bold
-    text = re.sub(r'\\mathit\{(.*?)\}', r'*\1*', text)  # \mathit{} to italics
-    text = re.sub(r'\\frac\{(.*?)\}\{(.*?)\}', r'(\1)/(\2)', text)  # \frac{}{}
-    text = re.sub(r'\\sqrt\{(.*?)\}', r'√(\1)', text)  # \sqrt{}
-    text = re.sub(r'\\overline\{(.*?)\}', r'̅\1̅', text)  # \overline{}
-    
-    # Handle subscripts and superscripts
-    text = re.sub(r'_(?:\{(.*?)\}|([^_]))', r'₍\1\2₎', text)  # Subscripts
-    text = re.sub(r'\^(?:\{(.*?)\}|([^^]))', r'⁽\1\2⁾', text)  # Superscripts
-    
-    # Handle Greek letters
-    greek_letters = {
-        'alpha': 'α', 'beta': 'β', 'gamma': 'γ', 'delta': 'δ',
-        'epsilon': 'ε', 'zeta': 'ζ', 'eta': 'η', 'theta': 'θ',
-        'iota': 'ι', 'kappa': 'κ', 'lambda': 'λ', 'mu': 'μ',
-        'nu': 'ν', 'xi': 'ξ', 'omicron': 'ο', 'pi': 'π',
-        'rho': 'ρ', 'sigma': 'σ', 'tau': 'τ', 'upsilon': 'υ',
-        'phi': 'φ', 'chi': 'χ', 'psi': 'ψ', 'omega': 'ω',
-        'Gamma': 'Γ', 'Delta': 'Δ', 'Theta': 'Θ', 'Lambda': 'Λ',
-        'Xi': 'Ξ', 'Pi': 'Π', 'Sigma': 'Σ', 'Phi': 'Φ',
-        'Psi': 'Ψ', 'Omega': 'Ω'
-    }
-    
-    for greek, symbol in greek_letters.items():
-        text = re.sub(r'\\' + greek + r'(?![a-zA-Z])', symbol, text)
+    # Then handle math expressions (existing code)
+    text = re.sub(r"\$(.*?)\$", r"\1", text)  # Inline math
+    text = re.sub(r"\\\[(.*?)\\\]", r"\1", text)  # Display math
+    text = re.sub(r"\\begin\{equation\*\}(.*?)\\end\{equation\*\}", r"\1", text)
+    text = re.sub(r"\\begin\{align\*\}(.*?)\\end\{align\*\}", r"\1", text)
+    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)  # Remove other LaTeX commands
     
     return text
 
