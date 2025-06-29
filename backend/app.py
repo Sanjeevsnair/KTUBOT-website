@@ -777,11 +777,31 @@ Your response MUST use this exact format:
    - First match subtopic content if relevant
    - Then match topic content
    - Finally module overview if needed
-5. STRICTLY convert any LaTeX math expressions to plain text:
-   - $E=mc^2$ → E=mc^2
-   - \frac{'a'}{'b'} → a/b
-   - \sqrt{'x'} → sqrt(x)
-   - Remove all other LaTeX commands
+5. Generate LaTeX math code to properly mark up the following mathematical concepts and expressions, ensuring correct spacing, alignment, and the use of appropriate environments for each:
+
+A definite integral with limits, involving a trigonometric function and a polynomial, set within an equation for an area.
+
+A system of three linear equations with three variables, demonstrating proper alignment of variables and coefficients.
+
+A matrix equation representing a transformation, including a 2x2 matrix, a column vector, and the resulting column vector.
+
+The definition of a limit of a function using epsilon-delta notation.
+
+A piecewise function with at least three cases, involving different types of functions (e.g., linear, quadratic, exponential).
+
+A complex fraction (a fraction where the numerator or denominator, or both, contain fractions), simplified as much as possible within the LaTeX.
+
+The binomial theorem expansion for (a+b) 
+n
+ , showing the general formula and the first few terms.
+
+A set-builder notation for a set of numbers satisfying certain conditions, including a logical implication or equivalence.
+
+A vector in 3D space, showing its components and its magnitude.
+
+A summation notation for an infinite series, including an index starting from 1 to infinity, with a general term involving a factorial or a power.
+
+For each item, provide the LaTeX code within a display math environment ($$...$$ ). Where appropriate, include comments within the LaTeX code to explain specific commands or choices.
 
 **Response**:
 """
