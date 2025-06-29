@@ -69,6 +69,7 @@ drive_service = build(
 import re
 
 
+
 firebase_json = os.environ.get("FIREBASE_CREDS")
 if not firebase_json:
     raise ValueError("FIREBASE_CREDS environment variable not set")
@@ -787,7 +788,6 @@ Your response MUST use this exact format:
 
 
 def latex_to_plaintext(text: str) -> str:
-<<<<<<< HEAD
     """Convert LaTeX to plain text with special handling for lstlisting and math, but preserve table placeholders"""
     if not text:
         return text
@@ -804,173 +804,8 @@ def latex_to_plaintext(text: str) -> str:
     text = re.sub(r"\\begin\{equation\*\}(.*?)\\end\{equation\*\}", r"\1", text)
     text = re.sub(r"\\begin\{align\*\}(.*?)\\end\{align\*\}", r"\1", text)
     text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)  # Remove other LaTeX commands
-=======
-    """Convert LaTeX to plain text with special handling for math expressions"""
-    if not text:
-        return text
-
-    # First process lstlisting blocks
-    text = process_lstlisting_blocks(text)
-    
-    # Handle LaTeX math environments
-    text = convert_latex_math(text)
-    
-    # Remove other LaTeX commands
-    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)
-    text = re.sub(r"[{}]", "", text)
     
     return text
-
-def convert_latex_math(text: str) -> str:
-    """
-    Convert LaTeX math expressions to plain text representations.
-    Handles both inline ($...$) and display (\[...\], equation, align) environments.
-    """
-    # Process display math environments first
-    text = re.sub(r"\\begin\{equation\*?\}(.*?)\\end\{equation\*?\}", 
-                 lambda m: f"\nEquation: {convert_math_content(m.group(1))}\n", 
-                 text, flags=re.DOTALL)
-    
-    text = re.sub(r"\\begin\{align\*?\}(.*?)\\end\{align\*?\}", 
-                 lambda m: f"\nEquation System:\n{convert_math_content(m.group(1))}\n", 
-                 text, flags=re.DOTALL)
-    
-    text = re.sub(r"\\\[(.*?)\\\]", 
-                 lambda m: f"\nEquation: {convert_math_content(m.group(1))}\n", 
-                 text)
-    
-    # Process inline math
-    text = re.sub(r"\$(.*?)\$", 
-                 lambda m: f" {convert_math_content(m.group(1))} ", 
-                 text)
->>>>>>> 6b6d52be58605bc62e1be9f5ba0115312390d9e1
-    
-    return text
-
-def convert_math_content(math_expr: str) -> str:
-    """
-    Convert the content of a math expression to plain text with proper formatting.
-    """
-    # Common replacements
-    replacements = {
-        r"\\frac{(.*?)}{(.*?)}": r"(\1)/(\2)",
-        r"\\sqrt{(.*?)}": r"sqrt(\1)",
-        r"\\text{(.*?)}": r"\1",
-        r"\\left\((.*?)\\right\)": r"(\1)",
-        r"\\left\[(.*?)\\right\]": r"[\1]",
-        r"\\left\{(.*?)\\right\}": r"{\1}",
-        r"\\left\|(.*?)\\right\|": r"|\1|",
-        r"\\cdot": "·",
-        r"\\times": "×",
-        r"\\div": "÷",
-        r"\\pm": "±",
-        r"\\approx": "≈",
-        r"\\leq": "≤",
-        r"\\geq": "≥",
-        r"\\neq": "≠",
-        r"\\infty": "∞",
-        r"\\sum": "Σ",
-        r"\\prod": "Π",
-        r"\\int": "∫",
-        r"\\partial": "∂",
-        r"\\alpha": "α",
-        r"\\beta": "β",
-        r"\\gamma": "γ",
-        r"\\Delta": "Δ",
-        r"\\theta": "θ",
-        r"\\lambda": "λ",
-        r"\\mu": "μ",
-        r"\\pi": "π",
-        r"\\sigma": "σ",
-        r"\\omega": "ω",
-        r"\\Omega": "Ω",
-        r"\\rightarrow": "→",
-        r"\\leftarrow": "←",
-        r"\\Rightarrow": "⇒",
-        r"\\Leftarrow": "⇐",
-        r"\\Leftrightarrow": "⇔",
-        r"\\mapsto": "↦",
-        r"\\in": "∈",
-        r"\\subset": "⊂",
-        r"\\subseteq": "⊆",
-        r"\\cup": "∪",
-        r"\\cap": "∩",
-        r"\\emptyset": "∅",
-        r"\\forall": "∀",
-        r"\\exists": "∃",
-        r"\\neg": "¬",
-        r"\\land": "∧",
-        r"\\lor": "∨",
-        r"\\top": "⊤",
-        r"\\bot": "⊥",
-        r"\\vdash": "⊢",
-        r"\\models": "⊨",
-        r"\\langle": "⟨",
-        r"\\rangle": "⟩",
-        r"\\lceil": "⌈",
-        r"\\rceil": "⌉",
-        r"\\lfloor": "⌊",
-        r"\\rfloor": "⌋",
-        r"\\ldots": "...",
-        r"\\cdots": "⋯",
-        r"\\vdots": "⋮",
-        r"\\ddots": "⋱",
-        r"\\hat{(.*?)}": r"^\1",
-        r"\\bar{(.*?)}": r"¯\1",
-        r"\\vec{(.*?)}": r"→\1",
-        r"\\dot{(.*?)}": r"˙\1",
-        r"\\ddot{(.*?)}": r"¨\1",
-        r"\\tilde{(.*?)}": r"~\1",
-        r"\\underline{(.*?)}": r"_\1",
-        r"\\overset{(.*?)}{(.*?)}": r"\1^\2",
-        r"\\underset{(.*?)}{(.*?)}": r"\1_\2",
-        r"\\binom{(.*?)}{(.*?)}": r"C(\1,\2)",
-        r"\\operatorname{(.*?)}": r"\1",
-        r"\\mathrm{(.*?)}": r"\1",
-        r"\\mathbf{(.*?)}": r"\1",
-        r"\\mathbb{(.*?)}": r"\1",
-        r"\\mathcal{(.*?)}": r"\1",
-        r"\\mathscr{(.*?)}": r"\1",
-        r"\\mathfrak{(.*?)}": r"\1",
-        r"\\scriptstyle": "",
-        r"\\displaystyle": "",
-        r"\\textstyle": "",
-        r"\\scriptscriptstyle": "",
-        r"\\limits": "",
-        r"\\nolimits": "",
-        r"\\big": "",
-        r"\\Big": "",
-        r"\\bigg": "",
-        r"\\Bigg": "",
-        r"\\,": " ",
-        r"\\:": " ",
-        r"\\;": " ",
-        r"\\!": "",
-        r"\\quad": "    ",
-        r"\\qquad": "        ",
-        r"\\~": "~",
-        r"\\_": "_",
-        r"\\#": "#",
-        r"\\%": "%",
-        r"\\&": "&",
-        r"\\\$": "$",
-    }
-
-    # Apply replacements in order
-    for pattern, replacement in replacements.items():
-        math_expr = re.sub(pattern, replacement, math_expr)
-
-    # Handle subscripts and superscripts
-    math_expr = re.sub(r"\^\{([^}]*)\}", r"^\1", math_expr)
-    math_expr = re.sub(r"_\{([^}]*)\}", r"_\1", math_expr)
-    math_expr = re.sub(r"\^([^{])", r"^\1", math_expr)
-    math_expr = re.sub(r"_([^{])", r"_\1", math_expr)
-
-    # Clean up any remaining LaTeX commands
-    math_expr = re.sub(r"\\[a-zA-Z]+", "", math_expr)
-    math_expr = re.sub(r"[{}]", "", math_expr)
-
-    return math_expr.strip()
 
 def process_lstlisting_blocks(text: str) -> str:
     """Extract and format lstlisting blocks as markdown code blocks"""
