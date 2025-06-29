@@ -789,22 +789,65 @@ Your response MUST use this exact format:
 
 
 def latex_to_plaintext(text: str) -> str:
-    """Convert LaTeX to plain text with special handling for lstlisting and math, but preserve table placeholders"""
+    """Convert LaTeX to plain text with special handling for equations"""
     if not text:
         return text
 
-    # Preserve table placeholders
+    # First preserve table placeholders
     table_placeholders = re.findall(r'\[TABLE_PLACEHOLDER_\d+\]', text)
     
-    # First process lstlisting blocks
+    # Process lstlisting blocks first
     text = process_lstlisting_blocks(text)
     
-    # Then handle math expressions (existing code)
-    text = re.sub(r"\$(.*?)\$", r"\1", text)  # Inline math
-    text = re.sub(r"\\\[(.*?)\\\]", r"\1", text)  # Display math
-    text = re.sub(r"\\begin\{equation\*\}(.*?)\\end\{equation\*\}", r"\1", text)
-    text = re.sub(r"\\begin\{align\*\}(.*?)\\end\{align\*\}", r"\1", text)
-    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)  # Remove other LaTeX commands
+    # Handle LaTeX equations
+    text = convert_latex_equations(text)
+    
+    # Remove other LaTeX commands
+    text = re.sub(r"\\[a-zA-Z]+\{.*?\}", "", text)
+    text = re.sub(r"[{}]", "", text)
+    
+    return text
+
+def convert_latex_equations(text: str) -> str:
+    """Convert LaTeX equations to readable plain text with proper formatting"""
+    # Handle display equations (\[ \] and equation environments)
+    text = re.sub(r'\\\[(.*?)\\\]', r'$$\1$$', text)
+    text = re.sub(r'\\begin\{equation\*\}(.*?)\\end\{equation\*\}', r'$$\1$$', text)
+    text = re.sub(r'\\begin\{equation\}(.*?)\\end\{equation\}', r'$$\1$$', text)
+    text = re.sub(r'\\begin\{align\*\}(.*?)\\end\{align\*\}', r'$$\1$$', text)
+    text = re.sub(r'\\begin\{align\}(.*?)\\end\{align\}', r'$$\1$$', text)
+    
+    # Handle inline math ($ $)
+    text = re.sub(r'\$(.*?)\$', r'$\1$', text)
+    
+    # Clean up common LaTeX commands
+    text = re.sub(r'\\text\{(.*?)\}', r'\1', text)  # \text{}
+    text = re.sub(r'\\mathrm\{(.*?)\}', r'\1', text)  # \mathrm{}
+    text = re.sub(r'\\mathbf\{(.*?)\}', r'**\1**', text)  # \mathbf{} to bold
+    text = re.sub(r'\\mathit\{(.*?)\}', r'*\1*', text)  # \mathit{} to italics
+    text = re.sub(r'\\frac\{(.*?)\}\{(.*?)\}', r'(\1)/(\2)', text)  # \frac{}{}
+    text = re.sub(r'\\sqrt\{(.*?)\}', r'√(\1)', text)  # \sqrt{}
+    text = re.sub(r'\\overline\{(.*?)\}', r'̅\1̅', text)  # \overline{}
+    
+    # Handle subscripts and superscripts
+    text = re.sub(r'_(?:\{(.*?)\}|([^_]))', r'₍\1\2₎', text)  # Subscripts
+    text = re.sub(r'\^(?:\{(.*?)\}|([^^]))', r'⁽\1\2⁾', text)  # Superscripts
+    
+    # Handle Greek letters
+    greek_letters = {
+        'alpha': 'α', 'beta': 'β', 'gamma': 'γ', 'delta': 'δ',
+        'epsilon': 'ε', 'zeta': 'ζ', 'eta': 'η', 'theta': 'θ',
+        'iota': 'ι', 'kappa': 'κ', 'lambda': 'λ', 'mu': 'μ',
+        'nu': 'ν', 'xi': 'ξ', 'omicron': 'ο', 'pi': 'π',
+        'rho': 'ρ', 'sigma': 'σ', 'tau': 'τ', 'upsilon': 'υ',
+        'phi': 'φ', 'chi': 'χ', 'psi': 'ψ', 'omega': 'ω',
+        'Gamma': 'Γ', 'Delta': 'Δ', 'Theta': 'Θ', 'Lambda': 'Λ',
+        'Xi': 'Ξ', 'Pi': 'Π', 'Sigma': 'Σ', 'Phi': 'Φ',
+        'Psi': 'Ψ', 'Omega': 'Ω'
+    }
+    
+    for greek, symbol in greek_letters.items():
+        text = re.sub(r'\\' + greek + r'(?![a-zA-Z])', symbol, text)
     
     return text
 
